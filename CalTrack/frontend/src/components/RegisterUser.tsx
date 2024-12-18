@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { app, db } from "../firebaseConfig";
+import API_URL from "../config/apiConfig";
 
 export const Register = () => {
   const [name, setName] = useState("");
@@ -11,41 +9,61 @@ export const Register = () => {
   const [weight, setWeight] = useState("");
   const [length, setLength] = useState("");
   const [fitnessGoals, setFitnessGoals] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const auth = getAuth(app);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const resetFields = () => {
+    console.log("Resetting fields...");
+    setName("");
+    setEmail("");
+    setPassword("");
+    setAge("");
+    setWeight("");
+    setLength("");
+    setFitnessGoals("");
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError(null);
+    setSuccess(null);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const userId = userCredential.user.uid;
-
-      await setDoc(doc(db, "users", userId), {
-        name,
-        email,
-        age,
-        weight,
-        length,
-        fitnessGoals,
+      // Send registration data to the backend
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          age,
+          weight,
+          length,
+          fitnessGoals,
+        }),
       });
 
+      if (!response.ok) {
+        const responseData = await response.json();
+        throw new Error(responseData.message || "Failed to register user.");
+      }
+
+      const responseData = await response.json();
+      console.log("User registered successfully:", responseData);
       setSuccess("User registered successfully!");
+      resetFields();
     } catch (err) {
       console.error("Error registering user:", err);
-      setError((err as Error).message);
+      setError((err as Error).message || "An unknown error occurred.");
     }
   };
 
   return (
     <form onSubmit={handleRegister}>
+      <h2>Register</h2>
       <input
         type="text"
         placeholder="Enter your name"

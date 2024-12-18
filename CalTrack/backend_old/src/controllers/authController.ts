@@ -11,7 +11,7 @@ export const registerUser = async (
     let existingUser;
     try {
       existingUser = await admin.auth().getUserByEmail(email);
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error.code !== "auth/user-not-found") {
         console.error("Error fetching user:", error);
         res.status(500).json({ message: error.message });
@@ -34,7 +34,7 @@ export const registerUser = async (
       message: "User registered successfully",
       uid: userRecord.uid,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating user:", error);
     res.status(400).json({
       message: error.message || "Failed to register user",
@@ -57,7 +57,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       message: "Login successful",
       token: customToken,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error logging in user:", error);
     res.status(500).json({
       message: error.message || "Internal server error",
