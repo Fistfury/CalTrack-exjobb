@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import { readFileSync } from "fs";
 import * as path from "path";
 
+// Resolve the correct service account path
 const serviceAccountPath = path.resolve(
   __dirname,
   "../config/serviceAccountKey.json"

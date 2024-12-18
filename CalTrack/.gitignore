@@ -1,21 +1,16 @@
 # Node modules
 node_modules/
-backend/node_modules/
-frontend/node_modules/
-functions/node_modules/
 
 # Environment variables
-.env
-backend/.env
-frontend/.env
+**/.env
 
-# Ignore Firebase service account key in backend
-backend/src/config/serviceAccountKey.json
-
+# Firebase service account keys
+**/serviceAccountKey.json
 
 # Build output
 dist/
 build/
+lib/
 
 # Logs
 logs
@@ -26,10 +21,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor directories and files
-.vscode/*
+# Editor and IDE files
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -37,3 +32,5 @@ lerna-debug.log*
 *.sln
 *.sw?
 
+# OS-specific files
+Thumbs.db
