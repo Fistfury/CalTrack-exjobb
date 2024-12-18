@@ -1,21 +1,18 @@
-import functions from "firebase-functions";
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import * as functions from "firebase-functions";
+import * as express from "express";
+import * as cors from "cors";
+import "./config/firebase-config";
+import routes from "./routes";
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
-import routes from "./routes";
-app.use("/api", routes);
+// Routes example
 
-// Health Check Route
+app.use("/", routes);
+
+// Health Check
 app.get("/", (req, res) => {
   res.send("CalTrack Backend API is running!");
 });

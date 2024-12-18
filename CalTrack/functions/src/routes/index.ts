@@ -7,4 +7,8 @@ const router = Router();
 router.use("/auth", authRoutes);
 router.use("/entries", entryRoutes);
 
+router.get("/test", (req, res) => {
+  res.send({ message: "Test route working!" });
+});
+
 export default router;

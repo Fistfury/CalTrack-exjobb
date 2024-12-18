@@ -1,15 +1,14 @@
-import admin from "firebase-admin";
+import * as admin from "firebase-admin";
 import { readFileSync } from "fs";
-import dotenv from "dotenv";
+import * as path from "path";
 
-dotenv.config();
+// Resolve the correct service account path
+const serviceAccountPath = path.resolve(
+  __dirname,
+  "../config/serviceAccountKey.json"
+);
 
 try {
-  const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (!serviceAccountPath) {
-    throw new Error("GOOGLE_APPLICATION_CREDENTIALS not set in .env.");
-  }
-
   const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf8"));
 
   admin.initializeApp({
