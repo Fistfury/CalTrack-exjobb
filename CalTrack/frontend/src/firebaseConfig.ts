@@ -20,8 +20,8 @@ if (
   window.location.hostname === "localhost"
 ) {
   console.log("Connecting to Firestore and Auth Emulator...");
-  connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port
-  connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port
+  connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port!
+  connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port!
 }
 
 export { app, db, auth };
