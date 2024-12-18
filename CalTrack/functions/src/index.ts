@@ -1,3 +1,3 @@
-import { api } from "./server";
+import {api} from './server';
 
-export { api };
+export {api};

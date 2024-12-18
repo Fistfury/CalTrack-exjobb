@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2017",
-    "sourceMap": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
     "outDir": "lib",
-    "rootDir": "src",
-    "strict": true
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
   },
   "compileOnSave": true,
-  "include": ["src/**/*.ts", "index.ts"]
+  "include": [
+    "src"
+  ]
 }
