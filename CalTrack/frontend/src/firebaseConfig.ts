@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,13 +15,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Use Emulator if running locally
 if (
   import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true" ||
   window.location.hostname === "localhost"
 ) {
-  console.log("Connecting to Firestore Emulator...");
-  connectFirestoreEmulator(db, "localhost", 8081);
+  console.log("Connecting to Firestore and Auth Emulator...");
+  connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port
+  connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port
 }
 
 export { app, db, auth };
