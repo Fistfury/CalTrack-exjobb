@@ -5,17 +5,8 @@ export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  console.log("🟢 Incoming request body:", req.body);
   const { name, email, password, age, weight, length, fitnessGoals } = req.body;
-
-  console.log("🟢 Incoming request body:", {
-    name,
-    email,
-    password,
-    age,
-    weight,
-    length,
-    fitnessGoals,
-  });
 
   try {
     console.log("🟢 Starting user registration process...");

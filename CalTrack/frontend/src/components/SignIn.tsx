@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import API_URL from "../config/apiConfig";
+import { Input } from "./Input";
+import { Button } from "./Button";
+import styles from "./styles/signIn.module.scss";
+import { auth } from "../config/firebaseConfig";
 
 export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const auth = getAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +26,7 @@ export const SignIn = () => {
       );
       const token = await userCredential.user.getIdToken();
 
-      // Send token to your backend for verification
+      // Send token to backend for verification
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
@@ -39,7 +42,7 @@ export const SignIn = () => {
       }
 
       console.log("Login successful!");
-      localStorage.setItem("token", token); // Store token for authenticated requests
+      localStorage.setItem("token", token); // Save token for authenticated requests
     } catch (err) {
       console.error("Error signing in:", err);
       setError((err as Error).message || "An unknown error occurred.");
@@ -49,26 +52,25 @@ export const SignIn = () => {
   };
 
   return (
-    <form onSubmit={handleSignIn}>
+    <form onSubmit={handleSignIn} className={styles.signInForm}>
       <h2>Sign In</h2>
-      <input
-        type="email"
+      <Input
         placeholder="Enter your email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
       />
-      <input
+      <Input
         type="password"
         placeholder="Enter your password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit" disabled={loading}>
+      <Button type="submit" disabled={loading}>
         {loading ? "Signing In..." : "Sign In"}
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      </Button>
+      {error && <p className={styles.error}>{error}</p>}
     </form>
   );
 };

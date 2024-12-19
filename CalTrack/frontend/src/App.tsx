@@ -1,24 +1,32 @@
-import { useEffect } from "react";
-import { Button } from "@mui/material";
-import { SignIn } from "./components/SignIn";
-import { AddData } from "./components/AddData";
-import { Register } from "./components/RegisterUser";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HomePage } from "./pages/HomePage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { WorkoutPage } from "./pages/WorkoutPage";
+import { NutritionPage } from "./pages/NutritionPage";
+import { CalendarPage } from "./pages/CalendarPage";
+import { MilestonesPage } from "./pages/MilestonesPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { Header } from "./components/Header";
+import TestFirestore from "./components/TestFirestore";
 
-export const App = () => {
-  useEffect(() => {
-    console.log("Firebase App Initialized");
-  }, []);
-
+const App = () => {
   return (
-    <div>
-      <h1>Welcome to CalTrack!</h1>
-      <SignIn />
-      <AddData />
-      <Register />
-      <Button variant="contained" color="primary">
-        Submit
-      </Button>
-      ;
-    </div>
+    <Router>
+      <Header />
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/workouts" element={<WorkoutPage />} />
+          <Route path="/nutrition" element={<NutritionPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/milestones" element={<MilestonesPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/testfirestore" element={<TestFirestore />} />
+        </Routes>
+      </main>
+    </Router>
   );
 };
+
+export default App;

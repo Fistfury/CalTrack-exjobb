@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,14 +15,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const functions = getFunctions(app);
 
 if (
   import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true" ||
   window.location.hostname === "localhost"
 ) {
-  console.log("Connecting to Firestore and Auth Emulator...");
-  connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port!
-  connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port!
+  console.log("Connecting to Firestore, Auth, and Functions Emulator...");
+  connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port
+  connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port
+  connectFunctionsEmulator(functions, "localhost", 5001); // Functions Emulator Port
 }
 
-export { app, db, auth };
+export { app, db, auth, functions };
