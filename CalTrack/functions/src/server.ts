@@ -9,9 +9,23 @@ import { FieldValue } from "firebase-admin/firestore";
 const app = express();
 
 // Middleware
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://caltrack-9b7b6.web.app"]
+    : ["http://127.0.0.1:5173", "http://localhost:5173"];
+
+// Middleware
 app.use(
   cors({
-    origin: ["http://127.0.0.1:5173", "http://localhost:5173"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })

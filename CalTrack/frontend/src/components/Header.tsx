@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import "./styles/header.module.scss";
+import styles from "./styles/header.module.scss";
 
 export const Header = () => {
   return (
-    <header className="header">
+    <header className={styles.header}>
       <h1>CalTrack</h1>
       <nav>
         <ul>

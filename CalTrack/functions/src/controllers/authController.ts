@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { FieldValue, db, auth } from "../config/firebase-config";
+import { FieldValue, db } from "../config/firebase-config";
 
 export const registerUser = async (
   req: Request,

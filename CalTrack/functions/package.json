@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "scripts": {
-    "lint": "eslint --ext .js,.ts .",
+    "lint": "eslint .",
     "build": "tsc && npm run copy-config",
     "copy-config": "cp src/config/serviceAccountKey.json lib/config/serviceAccountKey.json",
     "build:watch": "tsc --watch",
@@ -26,6 +26,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
@@ -35,7 +36,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^9.17.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.31.0",

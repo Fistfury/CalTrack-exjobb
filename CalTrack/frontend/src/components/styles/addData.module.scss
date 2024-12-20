@@ -1,5 +1,5 @@
-@import "./input";
-@import "./button";
+@use "../../styles/shared/input.module" as input;
+@use "../../styles/shared/button.module" as button;
 
 .addDataForm {
   display: flex;
