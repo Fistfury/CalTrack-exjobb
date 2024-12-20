@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
-import * as express from "express";
-import * as cors from "cors";
+import express from "express";
+import cors from "cors";
 import "./config/firebase-config";
 import routes from "./routes";
 import * as admin from "firebase-admin";

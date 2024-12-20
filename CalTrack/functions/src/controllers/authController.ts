@@ -1,53 +1,34 @@
 import { Request, Response } from "express";
-import { auth, FieldValue, db } from "../config/firebase-config";
+import { FieldValue, db, auth } from "../config/firebase-config";
 
 export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   console.log("🟢 Incoming request body:", req.body);
-  const { name, email, password, age, weight, length, fitnessGoals } = req.body;
+  const { firebaseUid, name, email, age, weight, length, fitnessGoals } =
+    req.body;
 
   try {
     console.log("🟢 Starting user registration process...");
 
     // Validate fields
-    if (!name || !email || !password) {
+    if (!firebaseUid || !name || !email) {
       console.log("❌ Missing required fields.");
       res.status(400).json({ message: "Missing required fields." });
       return;
     }
 
     console.log("🔍 Checking if user already exists...");
-    let existingUser;
-    try {
-      existingUser = await auth.getUserByEmail(email);
-    } catch (err: any) {
-      if (err.code === "auth/user-not-found") {
-        console.log("✅ User does not exist. Proceeding...");
-      } else {
-        console.error("❌ Error checking user:", err.message);
-        res.status(500).json({ message: "Error checking user." });
-        return;
-      }
-    }
-
-    if (existingUser) {
-      console.log("❌ User already exists:", email);
+    const existingUser = await db.collection("users").doc(firebaseUid).get();
+    if (existingUser.exists) {
       res.status(400).json({ message: "User already exists." });
       return;
     }
 
-    console.log("🛠️ Creating user in Firebase Authentication...");
-    const userRecord = await auth.createUser({
-      email,
-      password,
-      displayName: name,
-    });
-    console.log("✅ User created successfully:", userRecord.uid);
-
     console.log("🗂️ Saving user details to Firestore...");
-    await db.collection("users").doc(userRecord.uid).set({
+    // Save the user data in Firestore
+    await db.collection("users").doc(firebaseUid).set({
       name,
       email,
       age,
@@ -58,9 +39,7 @@ export const registerUser = async (
     });
     console.log("✅ User details saved to Firestore!");
 
-    res
-      .status(201)
-      .json({ message: "User registered successfully.", uid: userRecord.uid });
+    res.status(201).json({ message: "User registered successfully." });
   } catch (error: any) {
     console.error("❌ Error during registration:", error.message);
     res.status(500).json({ message: "Failed to register user." });

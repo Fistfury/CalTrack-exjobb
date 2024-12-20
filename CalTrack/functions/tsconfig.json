@@ -5,7 +5,18 @@
     "sourceMap": true,
     "outDir": "lib",
     "rootDir": "src",
-    "strict": true
+    "strict": true,
+    "types": [
+      "node",
+      "babel__core",
+      "babel__generator",
+      "babel__template",
+      "babel__traverse"
+    ],
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "compileOnSave": true,
   "include": ["src/**/*.ts", "index.ts"]
