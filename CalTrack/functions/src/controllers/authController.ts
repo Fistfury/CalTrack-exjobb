@@ -6,19 +6,10 @@ export const registerUser = async (
   res: Response
 ): Promise<void> => {
   console.log("🟢 Incoming request body:", req.body);
-  const { firebaseUid, name, email, age, weight, length, fitnessGoals } =
-    req.body;
+  const { name, password, email, age, weight, length, fitnessGoals } = req.body;
+  const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
 
   try {
-    console.log("🟢 Starting user registration process...");
-
-    // Validate fields
-    if (!firebaseUid || !name || !email) {
-      console.log("❌ Missing required fields.");
-      res.status(400).json({ message: "Missing required fields." });
-      return;
-    }
-
     console.log("🔍 Checking if user already exists...");
     const existingUser = await db.collection("users").doc(firebaseUid).get();
     if (existingUser.exists) {
@@ -31,6 +22,7 @@ export const registerUser = async (
     await db.collection("users").doc(firebaseUid).set({
       name,
       email,
+      password,
       age,
       weight,
       length,
@@ -47,30 +39,22 @@ export const registerUser = async (
 };
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
-  const { email } = req.body;
+  const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
 
   try {
-    // Firebase Admin SDK cannot directly validate passwords
-    // Authentication must occur client-side using Firebase Client SDK
-    const user = await auth.getUserByEmail(email);
+    console.log("🔍 Fetching user from Firestore with UID:", firebaseUid);
+    const userDoc = await db.collection("users").doc(firebaseUid).get();
 
-    if (!user) {
-      res.status(400).json({ message: "Invalid email or password" });
+    if (!userDoc.exists) {
+      res.status(404).json({ message: "User not found." });
       return;
     }
 
-    // Generate a custom token for the user
-    const customToken = await auth.createCustomToken(user.uid);
-
-    res.status(200).json({
-      message: "Login successful",
-      token: customToken,
-    });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    } else {
-      console.error("An unknown error occurred");
-    }
+    const userData = userDoc.data();
+    console.log("✅ User data retrieved:", userData);
+    res.status(200).json({ message: "Login successful", user: userData });
+  } catch (error: any) {
+    console.error("❌ Error during login:", error.message);
+    res.status(500).json({ message: "Failed to login." });
   }
 };
