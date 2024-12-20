@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { auth } from "../config/firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import API_URL from "../config/apiConfig";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import styles from "./styles/registerUser.module.scss";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterUser = () => {
   const [name, setName] = useState("");
@@ -17,20 +18,21 @@ export const RegisterUser = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const resetFields = () => {
-    setName("");
-    setEmail("");
-    setPassword("");
-    setAge("");
-    setWeight("");
-    setLength("");
-    setFitnessGoals("");
-  };
+  // const resetFields = () => {
+  //   setName("");
+  //   setEmail("");
+  //   setPassword("");
+  //   setAge("");
+  //   setWeight("");
+  //   setLength("");
+  //   setFitnessGoals("");
+  // };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return; // Prevent duplicate submissions
+    if (loading) return;
 
     setError(null);
     setSuccess(null);
@@ -43,29 +45,30 @@ export const RegisterUser = () => {
         email,
         password
       );
+      const token = await userCredential.user.getIdToken(); // Get Firebase Auth token
+      const firebaseUid = userCredential.user.uid;
 
-      // Update the user's display name in Firebase
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, { displayName: name });
-      }
+      console.log("🟢 Firebase Token:", token);
+      console.log("🟢 Firebase UID:", firebaseUid);
 
+      // Prepare the payload
       const payload = {
+        firebaseUid,
         name,
         email,
         password,
-        age,
-        weight,
-        length,
+        age: parseInt(age, 10),
+        weight: parseFloat(weight),
+        length: parseFloat(length),
         fitnessGoals,
       };
 
-      console.log("Payload being sent to backend:", payload);
-
-      // Send additional data to backend
+      // Send the payload to the backend
       const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Send token for backend validation
         },
         body: JSON.stringify(payload),
       });
@@ -75,16 +78,21 @@ export const RegisterUser = () => {
         throw new Error(responseData.message || "Failed to register user.");
       }
 
+      console.log("✅ User registered successfully!");
       setSuccess("User registered successfully!");
-      resetFields();
+
+      // Save token in localStorage for future authenticated requests
+      localStorage.setItem("token", token);
+
+      // Navigate to the dashboard after successful registration
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Error registering user:", err);
+      console.error("❌ Error registering user:", err);
       setError((err as Error).message || "An unknown error occurred.");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleRegister} className={styles.registerForm}>
       <h2>Register</h2>
