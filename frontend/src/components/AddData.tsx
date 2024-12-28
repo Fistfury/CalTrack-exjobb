@@ -1,39 +1,70 @@
 import { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
-import { Input } from "./Input";
-import { Button } from "./Button";
-import styles from "./styles/addData.module.scss";
+import { Input } from "../components/Input";
+import { Button } from "../components/Button";
 
-export const AddData = () => {
-  const [inputValue, setInputValue] = useState("");
+interface AddDataProps {
+  onClose: () => void;
+  onDataAdded: (newEntry: {
+    date: string;
+    weight: number;
+    calories: number;
+    calorieTarget: number;
+  }) => void;
+}
+
+export const AddData = ({ onClose, onDataAdded }: AddDataProps) => {
+  const [weight, setWeight] = useState("");
+  const [calories, setCalories] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    if (!weight || !calories) {
+      setError("Both weight and calories are required.");
+      return;
+    }
+
     try {
-      await addDoc(collection(db, "entries"), { field: inputValue });
-      console.log("Document added successfully!");
-      setInputValue("");
+      const today = new Date().toISOString().split("T")[0]; // Get today's date
+      const newEntry = {
+        date: today,
+        weight: parseFloat(weight),
+        calories: parseFloat(calories),
+        calorieTarget: 2000, // Default calorie target
+      };
+
+      await addDoc(collection(db, "entries"), newEntry);
+      onDataAdded(newEntry); // Trigger the callback
+      onClose(); // Close the modal
     } catch (err) {
-      console.error("Error adding document:", err);
-      setError("Failed to add document.");
+      console.error("Error adding data:", err);
+      setError("Failed to add data. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.addDataForm}>
-      <h2>Add Data</h2>
+    <form onSubmit={handleSubmit}>
+      <h2>Log Daily Data</h2>
       <Input
-        placeholder="Enter data"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        placeholder="Enter weight (kg)"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        type="number"
         required
       />
-      <Button type="submit">Add Data</Button>
-      {error && <p className={styles.error}>{error}</p>}
+      <Input
+        placeholder="Enter calories (kcal)"
+        value={calories}
+        onChange={(e) => setCalories(e.target.value)}
+        type="number"
+        required
+      />
+      <Button type="submit">Submit</Button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </form>
   );
 };

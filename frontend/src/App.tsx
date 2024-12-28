@@ -1,31 +1,61 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { DashboardPage } from "./pages/DashboardPage";
-import { WorkoutPage } from "./pages/WorkoutPage";
-import { NutritionPage } from "./pages/NutritionPage";
-import { CalendarPage } from "./pages/CalendarPage";
-import { MilestonesPage } from "./pages/MilestonesPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { Header } from "./components/Header";
-import TestFirestore from "./components/TestFirestore";
+import { UserProvider, useUser } from "./context/UserContext";
+import { JSX } from "react";
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { isLoggedIn, loading } = useUser();
+
+  if (loading) {
+    // Show a loading spinner or placeholder while user state is being resolved
+    return <div>Loading...</div>;
+  }
+
+  if (!isLoggedIn()) {
+    console.log("🔒 ProtectedRoute: Redirecting to /");
+    return <Navigate to="/" replace />;
+  }
+
+  console.log("🔓 ProtectedRoute: User authenticated");
+  return children;
+};
 
 const App = () => {
   return (
-    <Router>
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/workouts" element={<WorkoutPage />} />
-          <Route path="/nutrition" element={<NutritionPage />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/milestones" element={<MilestonesPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/testfirestore" element={<TestFirestore />} />
-        </Routes>
-      </main>
-    </Router>
+    <UserProvider>
+      <Router>
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
+      </Router>
+    </UserProvider>
   );
 };
 

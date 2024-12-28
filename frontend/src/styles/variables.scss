@@ -1,20 +1,14 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-}
+$spacing-small: 8px;
+$spacing-medium: 16px;
+$spacing-large: 24px;
+$primary-color: #3498db;
+$danger-color: #e74c3c;
+$secondary-color: #2ecc71;
 
-h1,
-h2,
-h3 {
-  color: #333;
-}
-
-a {
-  text-decoration: none;
-  color: #3498db;
-
-  &:hover {
-    text-decoration: underline;
-  }
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #0056b3;
+  --text-color: #ffffff;
+  --background-color: #1e1e1e;
+  --shadow-color: rgba(0, 0, 0, 0.8);
 }

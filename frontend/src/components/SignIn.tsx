@@ -4,15 +4,19 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import styles from "./styles/signIn.module.scss";
 import { auth } from "../config/firebaseConfig";
-import { useNavigate } from "react-router-dom";
-import API_URL from "../config/apiConfig";
+import { useUser } from "../context/UserContext";
+import { fetchWithFirebaseToken } from "../utils/ApiHelper";
 
-export const SignIn = () => {
+interface SignInProps {
+  onSuccess: () => void;
+}
+
+export const SignIn = ({ onSuccess }: SignInProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,45 +24,32 @@ export const SignIn = () => {
     setError(null);
 
     try {
-      // Authenticate user with Firebase
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
-      const token = await userCredential.user.getIdToken(); // Get Firebase Auth token
-      const firebaseUid = userCredential.user.uid; // Extract UID from Firebase
+      const token = await userCredential.user.getIdToken();
+      const firebaseUid = userCredential.user.uid;
 
-      console.log("🟢 Firebase Token:", token);
-      console.log("🟢 Firebase UID:", firebaseUid);
-
-      // Send firebaseUid to the backend
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Token for backend verification
-        },
-        body: JSON.stringify({
-          firebaseUid, // UID for backend to query user data
-        }),
+      const responseData = await fetchWithFirebaseToken(`auth/login`, token, {
+        firebaseUid,
       });
-
-      console.log("🟢 Backend Response Status:", response.status);
-      if (!response.ok) {
-        const responseData = await response.json();
-        console.error("❌ Backend Response Error:", responseData);
-        throw new Error(responseData.message || "Login failed.");
-      }
-
-      const responseData = await response.json();
-      console.log("✅ Login Successful:", responseData);
-
+      setUser({
+        id: firebaseUid,
+        name: responseData.name,
+        weight: responseData.weight,
+      });
       localStorage.setItem("token", token);
-      navigate("/dashboard");
+      onSuccess();
+      console.log(
+        "✅ SignIn: User signed in and context updated:",
+        userCredential.user
+      );
     } catch (err) {
-      console.error("❌ Error signing in:", err);
-      setError((err as Error).message || "An unknown error occurred.");
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred."
+      );
     } finally {
       setLoading(false);
     }
@@ -68,12 +59,14 @@ export const SignIn = () => {
     <form onSubmit={handleSignIn} className={styles.signInForm}>
       <h2>Sign In</h2>
       <Input
+        name="email"
         placeholder="Enter your email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
       />
       <Input
+        name="password"
         type="password"
         placeholder="Enter your password"
         value={password}

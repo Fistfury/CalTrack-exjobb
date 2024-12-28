@@ -1,30 +1,101 @@
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
   background-color: #3498db;
   color: white;
-  padding: 1rem;
 
-  h1 {
-    margin: 0;
+  .logo {
+    text-decoration: none;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+
+    &:hover {
+      color: #f1c40f;
+    }
   }
 
-  nav {
-    margin-top: 1rem;
-
+  .nav {
     ul {
       list-style: none;
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      margin: 0;
       padding: 0;
 
       li {
-        a {
+        margin: 0 0.5rem;
+
+        .icon {
+          background: none;
+          border: none;
           color: white;
-          text-decoration: none;
-          font-weight: bold;
+          cursor: pointer;
 
           &:hover {
-            text-decoration: underline;
+            color: #f1c40f;
           }
+        }
+
+        .language {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: none;
+          border: 1px solid white;
+          border-radius: 4px;
+          color: white;
+          padding: 0.25rem 0.5rem;
+          cursor: pointer;
+
+          &:hover {
+            background-color: white;
+            color: #3498db;
+          }
+        }
+
+        .profile {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+
+    .modalContent {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      position: relative;
+      width: 90%;
+      max-width: 400px;
+
+      .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+
+        &:hover {
+          color: red;
         }
       }
     }

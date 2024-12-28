@@ -4,6 +4,7 @@ import styles from "../styles/shared/input.module.scss";
 type InputProps = {
   placeholder: string;
   value: string;
+  name?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   required?: boolean;
@@ -15,12 +16,13 @@ type InputProps = {
 export const Input = ({
   placeholder,
   value,
+  name, // Ensure `name` is forwarded
   onChange,
   type = "text",
   required = false,
   hasError = false,
   disabled = false,
-  size,
+  size = "small", // Default to "small" size
 }: InputProps) => {
   const classNames = [
     styles.input,
@@ -35,6 +37,7 @@ export const Input = ({
       className={classNames}
       type={type}
       placeholder={placeholder}
+      name={name} // Forward `name` to the <input>
       value={value}
       onChange={onChange}
       required={required}
