@@ -8,3 +8,8 @@ export const entrySchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)."),
 });
+
+export const querySchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});

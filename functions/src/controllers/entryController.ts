@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../config/firebase-config";
+import { db, FieldValue } from "../config/firebase-config";
 
 export const createEntry = async (
   req: Request,
@@ -7,19 +7,32 @@ export const createEntry = async (
 ): Promise<void> => {
   const { userId, calories, weight, date } = req.body;
 
-  // Simple validation
   if (!userId || !calories || !weight || !date) {
     res.status(400).json({ error: "Missing required fields." });
     return;
   }
 
   try {
+    const existingEntry = await db
+      .collection("entries")
+      .where("userId", "==", userId)
+      .where("date", "==", date)
+      .get();
+
+    if (!existingEntry.empty) {
+      res.status(400).json({ error: "Entry already exists for this date." });
+      return;
+    }
+
+    // Create new entry
     const newEntry = await db.collection("entries").add({
       userId,
       calories: Number(calories),
       weight: Number(weight),
-      date,
+      date, // Use the date from the frontend
+      createdAt: FieldValue.serverTimestamp(),
     });
+
     res.status(201).json({ message: "Entry created", id: newEntry.id });
   } catch (error: unknown) {
     const message =
@@ -33,22 +46,33 @@ export const getEntries = async (
   res: Response
 ): Promise<void> => {
   const { userId } = req.params;
-
-  if (!userId) {
-    res.status(400).json({ error: "Missing userId parameter." });
-    return;
-  }
+  const { startDate, endDate } = req.query; // Optional date range for filtering
 
   try {
-    const snapshot = await db
-      .collection("entries")
-      .where("userId", "==", userId)
-      .get();
+    let query = db.collection("entries").where("userId", "==", userId);
+
+    if (startDate && endDate) {
+      query = query.where("date", ">=", startDate).where("date", "<=", endDate);
+    }
+
+    const snapshot = await query.get();
+
     const entries = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-    res.status(200).json(entries);
+
+    // Calculate logged dates and average weight
+    const loggedDates = entries.map((entry: any) => entry.date);
+    const averageWeight =
+      entries.reduce((sum, entry: any) => sum + entry.weight, 0) /
+      (entries.length || 1);
+
+    res.status(200).json({
+      entries,
+      loggedDates,
+      averageWeight: averageWeight.toFixed(1),
+    });
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "An unknown error occurred";
