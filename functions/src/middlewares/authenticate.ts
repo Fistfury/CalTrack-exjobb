@@ -14,27 +14,40 @@ export const authenticate = async (
     return;
   }
 
-  const token = authHeader.split(" ")[1]; // Extract token from header
+  const token = authHeader.split(" ")[1];
   console.log("🔑 Received Authorization Token:", token);
 
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log("✅ Decoded Token:", decodedToken);
+  let attempts = 3; // Retry attempts for transient failures
+  while (attempts > 0) {
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      console.log("✅ Decoded Token:", decodedToken);
 
-    const currentTime = Math.floor(Date.now() / 1000);
-    console.log("⏱️ Current Time:", currentTime);
-    console.log("⏳ Token Expiration Time:", decodedToken.exp);
+      const { uid } = decodedToken;
 
-    if (decodedToken.exp < currentTime) {
-      console.error("❌ Token has expired");
-      res.status(401).json({ message: "Unauthorized: Token expired" });
-      return;
+      // Verify the user exists in Firebase Authentication
+      const userRecord = await admin.auth().getUser(uid);
+      if (!userRecord) {
+        throw new Error("User record not found in Firebase Authentication");
+      }
+
+      res.locals.user = decodedToken; // Attach the token payload
+      return next(); // Proceed to the next middleware
+    } catch (error: any) {
+      console.warn(
+        `❌ Error verifying token (attempts left: ${attempts - 1}):`,
+        error.message
+      );
+
+      // Retry for transient errors
+      if (--attempts > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+      } else {
+        res
+          .status(401)
+          .json({ message: "Unauthorized: Invalid or expired token" });
+        return;
+      }
     }
-
-    res.locals.user = decodedToken; // Attach decoded token to res.locals
-    next();
-  } catch (error: any) {
-    console.error("❌ Error verifying token:", error.message);
-    res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 };

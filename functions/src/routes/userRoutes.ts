@@ -1,12 +1,10 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authenticate";
-import { getUserProfile } from "../controllers/weightController";
-import { updateWeight } from "../controllers/userController";
+import { getUser, updateUser } from "../controllers/userController";
 
 const router = Router();
 
-// Add routes for fetching and updating user profile
-router.get("/:userId", authenticate, getUserProfile);
-router.put("/weight", authenticate, updateWeight);
+router.get("/:userId", authenticate, getUser); // Fetch user by userId
+router.put("/:userId", authenticate, updateUser); // Update user profile (general)
 
 export default router;

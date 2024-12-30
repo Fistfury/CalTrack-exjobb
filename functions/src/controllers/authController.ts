@@ -6,7 +6,9 @@ export const registerUser = async (
   res: Response
 ): Promise<void> => {
   console.log("🟢 Incoming request body:", req.body);
-  const { name, password, email, age, weight, length, fitnessGoals } = req.body;
+
+  const { name, email, password, age, weight, height, sex, activityLevel } =
+    req.body;
   const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
 
   try {
@@ -17,21 +19,49 @@ export const registerUser = async (
       return;
     }
 
+    console.log("⚖️ Calculating calorie target...");
+    const activityMultiplierMap: Record<string, number> = {
+      sedentary: 1.2,
+      light: 1.375,
+      moderate: 1.55,
+      active: 1.725,
+      veryActive: 1.9,
+    };
+
+    const multiplier = activityMultiplierMap[activityLevel];
+    if (!multiplier) {
+      res.status(400).json({ message: "Invalid activity level provided." });
+      return;
+    }
+
+    const bmr =
+      sex === "male"
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    const calorieTarget = Math.round(bmr * multiplier - 500); // For weight loss
+
     console.log("🗂️ Saving user details to Firestore...");
-    // Save the user data in Firestore
-    await db.collection("users").doc(firebaseUid).set({
+    const userRef = db.collection("users").doc(firebaseUid);
+    await userRef.set({
       name,
       email,
       password,
       age,
       weight,
-      length,
-      fitnessGoals,
+      height,
+      sex,
+      activityLevel,
+      calorieTarget,
       createdAt: FieldValue.serverTimestamp(),
     });
+
     console.log("✅ User details saved to Firestore!");
 
-    res.status(201).json({ message: "User registered successfully." });
+    res.status(201).json({
+      message: "User registered successfully.",
+      calorieTarget, // Return calorie target to the frontend
+    });
   } catch (error: any) {
     console.error("❌ Error during registration:", error.message);
     res.status(500).json({ message: "Failed to register user." });
@@ -51,8 +81,22 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     const userData = userDoc.data();
+
+    if (!userData) {
+      res.status(500).json({ message: "Failed to retrieve user data." });
+      return;
+    }
+
     console.log("✅ User data retrieved:", userData);
-    res.status(200).json({ message: "Login successful", user: userData });
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        name: userData.name,
+        weight: userData.weight,
+        calorieTarget: userData.calorieTarget, // Include calorieTarget
+      },
+    });
   } catch (error: any) {
     console.error("❌ Error during login:", error.message);
     res.status(500).json({ message: "Failed to login." });

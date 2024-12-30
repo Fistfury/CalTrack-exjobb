@@ -7,8 +7,12 @@ export const userRegistrationSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters").trim(),
   age: z.number().int().min(0, "Age must be a positive number"),
   weight: z.number().min(0, "Weight must be a positive number"),
-  length: z.number().min(0, "Length must be a positive number"),
-  fitnessGoals: z.string().min(1, "Fitness goals are required").trim(),
+  height: z.number().min(0, "Height must be a positive number"),
+  sex: z.enum(["male", "female"], { required_error: "Sex is required" }),
+  activityLevel: z.enum(
+    ["sedentary", "light", "moderate", "active", "veryActive"],
+    { required_error: "Activity level is required" }
+  ),
 });
 
 export const userLoginSchema = z.object({
