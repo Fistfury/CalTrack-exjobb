@@ -4,90 +4,78 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import styles from "./styles/registerUser.module.scss";
-import { useUser } from "../context/UserContext";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
-
-interface RegisterUserProps {
-  onSuccess: () => void;
-}
+import { refreshToken } from "../utils/authUtils";
+import { useUser } from "../hooks/useUser";
+import {
+  RegisterUserProps,
+  RegisterResponse,
+  RegisterFormState,
+} from "../types/AuthTypes";
 
 export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
-  interface FormState {
-    name: string;
-    email: string;
-    password: string;
-    age: string;
-    weight: string;
-    length: string;
-    workoutFrequency: string;
-    fitnessGoals: string;
-  }
-
-  const [form, setForm] = useState<FormState>({
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<RegisterFormState>({
     name: "",
     email: "",
     password: "",
-    age: "",
+    sex: "",
     weight: "",
-    length: "",
-    workoutFrequency: "1-3",
-    fitnessGoals: "",
+    age: "",
+    height: "",
+    activityLevel: "sedentary",
   });
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { setUser } = useUser();
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
-    const {
-      name,
-      email,
-      password,
-      age,
-      weight,
-      length,
-      workoutFrequency,
-      fitnessGoals,
-    } = form;
-    if (
-      !name ||
-      !email ||
-      !password ||
-      !age ||
-      !weight ||
-      !length ||
-      !workoutFrequency ||
-      !fitnessGoals
-    ) {
-      return "All fields are required.";
+  const validateForm = (): string | null => {
+    const { name, email, password, sex, weight, age, height } = form;
+
+    if (step === 1) {
+      if (!name || !email || !password) {
+        return "Please fill in all fields in Step 1.";
+      }
     }
-    if (
-      parseInt(age, 10) < 0 ||
-      parseFloat(weight) <= 0 ||
-      parseFloat(length) <= 0
-    ) {
-      return "Please provide valid positive numbers for age, weight, and length.";
+
+    if (step === 2) {
+      if (!sex || !weight || !age || !height) {
+        return "Please fill in all fields in Step 2.";
+      }
+      if (
+        parseInt(age, 10) <= 0 ||
+        parseFloat(weight) <= 0 ||
+        parseFloat(height) <= 0
+      ) {
+        return "Please provide valid positive numbers for weight, age, and height.";
+      }
     }
+
     return null;
+  };
+
+  const handleNextStep = () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
+    setStep(2);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
     setLoading(true);
+
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -101,28 +89,52 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         form.email,
         form.password
       );
-      const token = await userCredential.user.getIdToken();
+      const token = await refreshToken();
       const firebaseUid = userCredential.user.uid;
 
-      await fetchWithFirebaseToken(`auth/register`, token, {
+      console.log("✅ Data being sent to backend:", {
         firebaseUid,
-        ...form,
-        age: parseInt(form.age, 10),
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        sex: form.sex,
         weight: parseFloat(form.weight),
-        length: parseFloat(form.length),
-        initialWeight: parseFloat(form.weight),
-        workoutFrequency: form.workoutFrequency,
+        age: parseInt(form.age, 10),
+        height: parseFloat(form.height),
+        activityLevel: form.activityLevel,
       });
+      localStorage.setItem("token", token);
 
-      setSuccess("User registered successfully!");
+      // Send data to backend
+      const userData = await fetchWithFirebaseToken<RegisterResponse>(
+        `auth/register`,
+        token,
+        {
+          firebaseUid,
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          sex: form.sex,
+          weight: parseFloat(form.weight),
+          age: parseInt(form.age, 10),
+          height: parseFloat(form.height),
+          activityLevel: form.activityLevel,
+        }
+      );
+
+      console.log("✅ Backend response:", userData);
+
+      // Set user in context
       setUser({
         id: firebaseUid,
         name: form.name,
         weight: parseFloat(form.weight),
+        calorieTarget: userData.calorieTarget,
       });
-      localStorage.setItem("token", token);
-      onSuccess();
+
+      onSuccess(); // Redirect or close modal
     } catch (err) {
+      console.error("❌ Registration error:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred."
       );
@@ -132,51 +144,88 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
   };
 
   return (
-    <form onSubmit={handleRegister} className={styles.registerForm}>
-      <h2>Register</h2>
-      {["name", "email", "password", "age", "weight", "length"].map((field) => (
-        <Input
-          key={field}
-          name={field}
-          placeholder={`Enter your ${field}`}
-          value={form[field as keyof FormState]}
-          onChange={handleChange}
-          type={
-            field === "password"
-              ? "password"
-              : field === "age" || field === "weight" || field === "length"
-              ? "number"
-              : "text"
-          }
-          required
-        />
-      ))}
-      <textarea
-        name="fitnessGoals"
-        placeholder="Enter your fitness goals"
-        value={form.fitnessGoals}
-        onChange={handleChange}
-        required
-        className={styles.textarea}
-      />
-      <div className={styles.formGroup}>
-        <label htmlFor="workoutFrequency">Workout Frequency</label>
-        <select
-          name="workoutFrequency"
-          value={form.workoutFrequency}
-          onChange={handleChange}
-          required
-          className={styles.select}
-        >
-          <option value="1-3">1-3 days/week</option>
-          <option value="3-7">3-7 days/week</option>
-        </select>
-      </div>
-      <Button type="submit" disabled={loading}>
-        {loading ? "Registering..." : "Register"}
-      </Button>
-      {error && <p className={styles.error}>{error}</p>}
-      {success && <p className={styles.success}>{success}</p>}
-    </form>
+    <div className={styles.registerUser}>
+      {step === 1 ? (
+        <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
+          <h2>Step 1: Account Details</h2>
+          <Input
+            name="name"
+            placeholder="Name"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          {error && <p className={styles.error}>{error}</p>}
+          <Button type="button" onClick={handleNextStep}>
+            Next
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={handleRegister} className={styles.form}>
+          <h2>Step 2: Personal Details</h2>
+          <select name="sex" value={form.sex} onChange={handleChange} required>
+            <option value="">Select Sex</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <Input
+            name="weight"
+            type="number"
+            placeholder="Weight (kg)"
+            value={form.weight}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="age"
+            type="number"
+            placeholder="Age"
+            value={form.age}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="height"
+            type="number"
+            placeholder="Height (cm)"
+            value={form.height}
+            onChange={handleChange}
+            required
+          />
+          <select
+            name="activityLevel"
+            value={form.activityLevel}
+            onChange={handleChange}
+            required
+          >
+            <option value="sedentary">Sedentary</option>
+            <option value="light">Lightly Active</option>
+            <option value="moderate">Moderately Active</option>
+            <option value="active">Active</option>
+            <option value="veryActive">Very Active</option>
+          </select>
+          {error && <p className={styles.error}>{error}</p>}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Calculate & Register"}
+          </Button>
+        </form>
+      )}
+    </div>
   );
 };

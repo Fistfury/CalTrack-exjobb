@@ -1,45 +1,31 @@
-import { useState } from "react";
-import { useUser } from "../context/UserContext";
-import { fetchWithFirebaseToken } from "../utils/ApiHelper";
+import { useUser } from "../hooks/useUser";
+import { useSummary } from "../hooks/useSummary";
 import styles from "./styles/profile.module.scss";
 
 export const ProfilePage = () => {
-  const { user, setUser } = useUser(); // Access setUser from UserContext
-  const [newWeight, setNewWeight] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const { user, setUser } = useUser();
+  const token = localStorage.getItem("token");
+  const { entries, weeklySummary } = useSummary(token);
 
-  const handleWeightUpdate = async () => {
-    if (!newWeight) {
-      setMessage("Weight cannot be empty.");
-      return;
-    }
+  if (!user) {
+    return <p>Loading...</p>;
+  }
 
-    try {
-      const token = localStorage.getItem("token"); // Get token from storage
-      if (!token) throw new Error("Token not found.");
-
-      // Update weight in the backend
-      await fetchWithFirebaseToken(
-        `users/weight`,
-        token,
-        { weight: parseFloat(newWeight) },
-        "PUT"
-      );
-
-      // Update the context with the new weight
-      setUser((prevUser) =>
-        prevUser ? { ...prevUser, weight: parseFloat(newWeight) } : null
-      );
-
-      setMessage("Weight updated successfully!");
-      setNewWeight("");
-    } catch (error) {
-      setMessage("Failed to update weight.");
-      console.error("Error updating weight:", error);
-    }
+  const handleWeightUpdate = (newWeight: number) => {
+    setUser((prevUser) =>
+      prevUser ? { ...prevUser, weight: newWeight } : null
+    );
   };
 
-  if (!user) return <p>Loading...</p>;
+  const getWeightForDay = (day: string) => {
+    const entry = entries.find(
+      (entry) =>
+        new Date(entry.date).toLocaleDateString("en-US", {
+          weekday: "long",
+        }) === day
+    );
+    return entry ? `${entry.weight} kg` : "No data";
+  };
 
   return (
     <div className={styles.profilePage}>
@@ -48,23 +34,46 @@ export const ProfilePage = () => {
         <p>Stay focused and motivated!</p>
       </div>
 
-      <div className={styles.weightSection}>
-        <h2>Current Weight</h2>
-        <p>{user.weight} kg</p>
+      <div className={styles.statsSection}>
+        <h2>Calorie Target</h2>
+        <p>{user.calorieTarget} kcal/day</p>
       </div>
 
-      <div className={styles.updateWeight}>
-        <h2>Update Weight</h2>
+      <div className={styles.statsSection}>
+        <h2>Current Weight</h2>
+        <p className={styles.currentWeight}>{user.weight} kg</p>
+      </div>
+
+      <div className={styles.weeklyWeightSection}>
+        <h2>Weekly Weight Overview</h2>
+        <ul>
+          {[
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ].map((day) => (
+            <li key={day}>
+              {day}: <span>{getWeightForDay(day)}</span>
+            </li>
+          ))}
+        </ul>
+        <h3>
+          Average Weight: {weeklySummary?.avgWeight?.toFixed(1) || "No data"} kg
+        </h3>
+      </div>
+
+      <div className={styles.updateWeightSection}>
         <input
           type="number"
           placeholder="Enter new weight"
-          value={newWeight}
-          onChange={(e) => setNewWeight(e.target.value)}
+          onChange={(e) => handleWeightUpdate(Number(e.target.value))}
         />
-        <button onClick={handleWeightUpdate}>Submit</button>
+        <button onClick={() => console.log("Update weight")}>Submit</button>
       </div>
-
-      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };

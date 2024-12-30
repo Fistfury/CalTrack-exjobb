@@ -8,8 +8,9 @@ import { HomePage } from "./pages/HomePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { Header } from "./components/Header";
-import { UserProvider, useUser } from "./context/UserContext";
 import { JSX } from "react";
+import { useUser } from "./hooks/useUser";
+import { UserProvider } from "./context/UserContext";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn, loading } = useUser();

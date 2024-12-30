@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useUser } from "../context/UserContext";
 import {
   AiOutlineDashboard,
   AiOutlineUser,
@@ -9,6 +8,7 @@ import {
 import { MdLanguage } from "react-icons/md";
 import styles from "./styles/header.module.scss";
 import { AuthModule } from "../modules/AuthModule";
+import { useUser } from "../hooks/useUser";
 
 export const Header = () => {
   const { logout, isLoggedIn } = useUser();

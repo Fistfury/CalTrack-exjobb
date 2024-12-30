@@ -1,67 +1,106 @@
 .profilePage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: auto;
 
   .header {
     text-align: center;
+    margin-bottom: 20px;
 
     h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      font-size: 24px;
+      color: #333;
     }
 
     p {
-      font-size: 1.2rem;
-      color: #555;
+      font-size: 14px;
+      color: #777;
     }
   }
 
-  .weightSection {
-    margin: 1.5rem 0;
+  .statsSection {
+    text-align: center;
+    margin-bottom: 20px;
 
     h2 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      font-size: 18px;
+      color: #444;
     }
 
     p {
-      font-size: 1.2rem;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .currentWeight {
+      font-size: 20px;
+      color: #007bff;
     }
   }
 
-  .updateWeight {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 2rem;
+  .weeklyWeightSection {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+
+        span {
+          font-weight: bold;
+          color: #333;
+        }
+      }
+    }
+
+    h3 {
+      margin-top: 15px;
+      text-align: center;
+      color: #444;
+    }
+  }
+
+  .updateWeightSection {
+    text-align: center;
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
 
     input {
-      padding: 0.5rem;
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
     }
 
     button {
-      padding: 0.5rem 1rem;
-      background-color: #3498db;
+      padding: 10px 20px;
+      background-color: #007bff;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
 
       &:hover {
-        background-color: #2c8fd4;
+        background-color: #0056b3;
       }
     }
-  }
-
-  .message {
-    margin-top: 1rem;
-    font-size: 1rem;
-    color: green;
   }
 }

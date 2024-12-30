@@ -4,12 +4,10 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import styles from "./styles/signIn.module.scss";
 import { auth } from "../config/firebaseConfig";
-import { useUser } from "../context/UserContext";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
-
-interface SignInProps {
-  onSuccess: () => void;
-}
+import { refreshToken } from "../utils/authUtils";
+import { useUser } from "../hooks/useUser";
+import { SignInProps, LoginResponse } from "../types/AuthTypes";
 
 export const SignIn = ({ onSuccess }: SignInProps) => {
   const [email, setEmail] = useState("");
@@ -29,24 +27,33 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
         email,
         password
       );
-      const token = await userCredential.user.getIdToken();
+      const token = await refreshToken();
       const firebaseUid = userCredential.user.uid;
 
-      const responseData = await fetchWithFirebaseToken(`auth/login`, token, {
-        firebaseUid,
-      });
+      // Fetch user data from backend
+      const loginResponse = await fetchWithFirebaseToken<LoginResponse>(
+        "auth/login",
+        token
+      );
+
+      const { user: userData } = loginResponse;
+
+      console.log("✅ SignIn Response:", userData);
+
+      // Update the user context with retrieved data
       setUser({
         id: firebaseUid,
-        name: responseData.name,
-        weight: responseData.weight,
+        name: userData.name,
+        weight: userData.weight,
+        calorieTarget: userData.calorieTarget,
       });
+
+      // Save token locally
       localStorage.setItem("token", token);
-      onSuccess();
-      console.log(
-        "✅ SignIn: User signed in and context updated:",
-        userCredential.user
-      );
+
+      onSuccess(); // Trigger success callback
     } catch (err) {
+      console.error("❌ SignIn Error:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred."
       );

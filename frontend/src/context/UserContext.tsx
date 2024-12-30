@@ -1,22 +1,9 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { auth } from "../config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import { db } from "../config/firebaseConfig"; // Import Firestore DB
+import { db } from "../config/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
-
-interface User {
-  id: string;
-  name: string;
-  weight: number;
-}
-
-interface UserContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isLoggedIn: () => boolean;
-  logout: () => void;
-  loading: boolean;
-}
+import { UserContextType, User } from "../types/UserTypes";
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -34,46 +21,63 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     console.log("✅ User logged out, context cleared.");
   };
 
-  const fetchUserData = async (uid: string) => {
-    try {
-      const userRef = doc(db, "users", uid);
-      const userSnapshot = await getDoc(userRef);
-
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data() as User;
-        console.log("✅ Firestore document found:", userData);
-        setUser({
-          id: uid,
-          name: userData.name,
-          weight: userData.weight,
-        });
-      } else {
-        console.warn("⚠️ Retrying Firestore fetch for UID:", uid);
-        setTimeout(() => fetchUserData(uid), 1000); // Retry after 1 second
+  const fetchUserData = useCallback(
+    async (uid: string, retries: number = 5): Promise<void> => {
+      if (retries <= 0) {
+        console.error(
+          `❌ Max retries reached. Could not fetch Firestore document for UID: ${uid}`
+        );
+        setUser(null);
+        return;
       }
-    } catch (error) {
-      console.error(
-        "❌ Error fetching user data from Firestore:",
-        (error as Error).message
-      );
-      setUser(null);
-    }
-  };
 
+      try {
+        const userRef = doc(db, "users", uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data() as User;
+          console.log("✅ Firestore document found:", userData);
+          setUser({
+            id: uid,
+            name: userData.name,
+            weight: userData.weight,
+            calorieTarget: userData.calorieTarget,
+          });
+        } else {
+          console.warn(
+            `⚠️ Firestore document not found. Retrying... Attempts left: ${
+              retries - 1
+            }`
+          );
+          setTimeout(() => fetchUserData(uid, retries - 1), 1000); // Retry after 1 second
+        }
+      } catch (error) {
+        console.error(
+          "❌ Error fetching user data from Firestore:",
+          (error as Error).message
+        );
+        setUser(null);
+      }
+    },
+    []
+  );
+
+  // Include fetchUserData in the dependency array
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         console.log("🔑 User logged in:", currentUser.uid);
-        fetchUserData(currentUser.uid).finally(() => setLoading(false)); // Fetch Firestore data and stop loading
+        fetchUserData(currentUser.uid).finally(() => setLoading(false));
       } else {
         console.log("❌ User is not logged in.");
-        setUser(null); // Clear user context
-        setLoading(false); // Stop loading
+        setUser(null);
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserData]);
 
   return (
     <UserContext.Provider
@@ -84,10 +88,4 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
-};
+export { UserContext };

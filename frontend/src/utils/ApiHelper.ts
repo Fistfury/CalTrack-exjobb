@@ -1,32 +1,30 @@
 import API_URL from "../config/apiConfig";
 
-export const fetchWithFirebaseToken = async (
-  endpoint: string, // Only provide the endpoint, not the full URL
+export const fetchWithFirebaseToken = async <T>(
+  endpoint: string,
   token: string,
-  payload?: unknown, // Optional payload
-  method: "POST" | "PUT" | "GET" | "DELETE" = "POST" // Add support for more HTTP methods
-) => {
-  const url = `${API_URL}/${endpoint}`; // Construct the full URL using API_URL
-
+  payload?: unknown,
+  method: "POST" | "PUT" | "GET" = "POST"
+): Promise<T> => {
+  const url = `${API_URL}/${endpoint}`;
   const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
+    body:
+      payload && (method === "POST" || method === "PUT")
+        ? JSON.stringify(payload)
+        : undefined,
   };
-
-  // Attach the payload only for methods that support a body
-  if (payload && (method === "POST" || method === "PUT")) {
-    options.body = JSON.stringify(payload);
-  }
 
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    const responseData = await response.json();
-    throw new Error(responseData.message || "An error occurred.");
+    const errorData = await response.json();
+    throw new Error(errorData.message || "An error occurred.");
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 };
