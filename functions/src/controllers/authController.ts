@@ -41,6 +41,11 @@ export const registerUser = async (
 
     const calorieTarget = Math.round(bmr * multiplier - 500); // For weight loss
 
+    // Macros calculation (percentages based on calorie target)
+    const proteins = Math.round((calorieTarget * 0.25) / 4); // 25% calories from protein
+    const carbs = Math.round((calorieTarget * 0.5) / 4); // 50% calories from carbs
+    const fats = Math.round((calorieTarget * 0.25) / 9); // 25% calories from fat
+
     console.log("🗂️ Saving user details to Firestore...");
     const userRef = db.collection("users").doc(firebaseUid);
     await userRef.set({
@@ -58,9 +63,27 @@ export const registerUser = async (
 
     console.log("✅ User details saved to Firestore!");
 
+    console.log("📦 Creating initial entry in 'entries' collection...");
+    const today = new Date().toISOString().split("T")[0]; // Current date
+    await db.collection("entries").add({
+      userId: firebaseUid,
+      date: today,
+      weight,
+      calories: calorieTarget,
+      proteins,
+      carbs,
+      fats,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    console.log("✅ Initial entry created successfully!");
+
     res.status(201).json({
       message: "User registered successfully.",
-      calorieTarget, // Return calorie target to the frontend
+      calorieTarget,
+      proteins,
+      carbs,
+      fats,
     });
   } catch (error: any) {
     console.error("❌ Error during registration:", error.message);

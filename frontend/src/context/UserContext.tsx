@@ -40,17 +40,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("✅ Firestore document found:", userData);
           setUser({
             id: uid,
-            name: userData.name,
-            weight: userData.weight,
-            calorieTarget: userData.calorieTarget,
+            name: userData.name || "No Name",
+            weight: userData.weight || 0,
+            calorieTarget: userData.calorieTarget || 0,
           });
         } else {
           console.warn(
-            `⚠️ Firestore document not found. Retrying... Attempts left: ${
+            `⚠️ Firestore document not found for UID=${uid}. Retrying... (${
               retries - 1
-            }`
+            } retries left)`
           );
-          setTimeout(() => fetchUserData(uid, retries - 1), 1000); // Retry after 1 second
+          setTimeout(() => fetchUserData(uid, retries - 1), 1000);
         }
       } catch (error) {
         console.error(
@@ -63,7 +63,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     []
   );
 
-  // Include fetchUserData in the dependency array
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -83,7 +82,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     <UserContext.Provider
       value={{ user, setUser, isLoggedIn, logout, loading }}
     >
-      {children}
+      {loading ? <p>Loading user data...</p> : children}
     </UserContext.Provider>
   );
 };

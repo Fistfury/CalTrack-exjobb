@@ -20,8 +20,27 @@ export interface ButtonProps {
   disabled?: boolean;
 }
 
+export interface AddDataProps {
+  onClose: () => void;
+  onDataAdded: (newEntry: {
+    date: string;
+    weight: number;
+    calories: number;
+    calorieTarget: number;
+  }) => void;
+}
+
 export interface UpdateWeightProps {
   token: string;
   currentWeight: number;
   onWeightUpdate: (newWeight: number) => void;
+}
+
+export interface WeeklyWeightFormProps {
+  token: string;
+  onWeightSubmit: (day: string, weight: number) => void;
+}
+
+export interface WeeklyOverviewProps {
+  weeklyData: Record<string, number | "No data">;
 }

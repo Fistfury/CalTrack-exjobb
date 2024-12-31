@@ -1,8 +1,9 @@
 import { Router } from "express";
 import {
-  createEntry,
   getEntries,
   getEntriesSummary,
+  addEntry,
+  createOrUpdateEntry,
 } from "../controllers/entryController";
 import { authenticate } from "../middlewares/authenticate";
 import { validate } from "../middlewares/validate";
@@ -10,7 +11,9 @@ import { entrySchema } from "../schemas/entrySchema";
 
 const router = Router();
 
-router.post("/", authenticate, validate(entrySchema), createEntry);
-router.get("/:userId", authenticate, getEntries);
-router.get("/summary", authenticate, getEntriesSummary);
+router.get("/summary", authenticate, getEntriesSummary); // Weekly summary
+router.get("/:userId", authenticate, getEntries); // Fetch entries for a user
+router.post("/", authenticate, validate(entrySchema), createOrUpdateEntry); // Full entry creation
+router.post("/add", authenticate, addEntry); // Add manual weight for a specific day
+
 export default router;

@@ -1,45 +1,56 @@
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+import { fetchWithFirebaseToken } from "../utils/ApiHelper";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
-
-interface AddDataProps {
-  onClose: () => void;
-  onDataAdded: (newEntry: {
-    date: string;
-    weight: number;
-    calories: number;
-    calorieTarget: number;
-  }) => void;
-}
+import { AddDataProps } from "../types/ComponentTypes";
 
 export const AddData = ({ onClose, onDataAdded }: AddDataProps) => {
   const [weight, setWeight] = useState("");
-  const [calories, setCalories] = useState("");
+  const [caloriesMet, setCaloriesMet] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const token = localStorage.getItem("token");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!weight || !calories) {
-      setError("Both weight and calories are required.");
+    if (!weight) {
+      setError("Weight is required.");
       return;
     }
 
     try {
-      const today = new Date().toISOString().split("T")[0]; // Get today's date
+      const today = new Date().toISOString().split("T")[0];
       const newEntry = {
         date: today,
         weight: parseFloat(weight),
-        calories: parseFloat(calories),
-        calorieTarget: 2000, // Default calorie target
+        caloriesMet,
       };
 
-      await addDoc(collection(db, "entries"), newEntry);
-      onDataAdded(newEntry); // Trigger the callback
-      onClose(); // Close the modal
+      // Call backend API
+      interface ApiResponse {
+        entry?: {
+          date: string;
+          weight: number;
+          calories: number;
+          calorieTarget: number;
+        };
+      }
+
+      const response: ApiResponse = await fetchWithFirebaseToken(
+        "entries",
+        token || "",
+        newEntry,
+        "POST"
+      );
+
+      if (response && response.entry) {
+        onDataAdded(response.entry); // Use entry if it exists
+      } else {
+        console.warn("Unexpected response structure:", response);
+        setError("Unexpected response from the server.");
+      }
+      onClose();
     } catch (err) {
       console.error("Error adding data:", err);
       setError("Failed to add data. Please try again.");
@@ -56,13 +67,14 @@ export const AddData = ({ onClose, onDataAdded }: AddDataProps) => {
         type="number"
         required
       />
-      <Input
-        placeholder="Enter calories (kcal)"
-        value={calories}
-        onChange={(e) => setCalories(e.target.value)}
-        type="number"
-        required
-      />
+      <label>
+        <input
+          type="checkbox"
+          checked={caloriesMet}
+          onChange={(e) => setCaloriesMet(e.target.checked)}
+        />
+        Consumed today's calories
+      </label>
       <Button type="submit">Submit</Button>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </form>

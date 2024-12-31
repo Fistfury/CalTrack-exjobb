@@ -5,7 +5,9 @@ import { UserContextType } from "../types/UserTypes";
 export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
+    throw new Error(
+      "useUser must be used within a UserProvider. Ensure that UserProvider wraps your component tree."
+    );
   }
   return context;
 };

@@ -1,106 +1,130 @@
 .profilePage {
   padding: 20px;
   font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: auto;
 
   .header {
     text-align: center;
     margin-bottom: 20px;
 
     h1 {
-      font-size: 24px;
-      color: #333;
+      font-size: 2rem;
+      margin-bottom: 10px;
     }
 
     p {
-      font-size: 14px;
-      color: #777;
+      color: #666;
     }
   }
 
-  .statsSection {
+  .targets {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    .targetBox {
+      flex: 1 1 calc(25% - 10px);
+      padding: 15px;
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+
+      h3 {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      p {
+        font-size: 1.2rem;
+        color: #007bff;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .currentWeight {
     text-align: center;
     margin-bottom: 20px;
 
     h2 {
-      font-size: 18px;
-      color: #444;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
     }
 
     p {
-      font-size: 16px;
-      color: #555;
-    }
-
-    .currentWeight {
-      font-size: 20px;
+      font-size: 1.2rem;
       color: #007bff;
-    }
-  }
-
-  .weeklyWeightSection {
-    margin: 20px 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #f9f9f9;
-
-    h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-
-      li {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-
-        span {
-          font-weight: bold;
-          color: #333;
-        }
-      }
-    }
-
-    h3 {
-      margin-top: 15px;
-      text-align: center;
-      color: #444;
-    }
-  }
-
-  .updateWeightSection {
-    text-align: center;
-
-    h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    input {
-      width: 80%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
+    .addWeightButton {
+      background: #007bff;
+      color: #fff;
       border: none;
-      border-radius: 4px;
+      padding: 10px 15px;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 1rem;
 
       &:hover {
-        background-color: #0056b3;
+        background: #0056b3;
       }
     }
+  }
+
+  .weeklyOverview {
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .averageWeight {
+      font-size: 1.1rem;
+      color: #666;
+      text-align: center;
+      margin-top: 10px;
+    }
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .modalContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+
+      .closeButton {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
   }
 }

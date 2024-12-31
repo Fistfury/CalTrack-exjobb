@@ -11,26 +11,39 @@ export const useSummary = (token: string | null) => {
 
   useEffect(() => {
     if (!token) {
+      console.error("🚨 Missing token, cannot fetch summary.");
       setError("Authorization token missing. Please log in again.");
-      setEntries([]);
-      setWeeklySummary(null);
       return;
     }
 
     const fetchSummary = async () => {
+      console.log("Fetching summary with token:", token);
+
       try {
-        setError(null); // Reset error state
-        const data = await fetchWithFirebaseToken<SummaryResponse>(
+        const response: SummaryResponse = await fetchWithFirebaseToken(
           "entries/summary",
-          token
+          token,
+          undefined,
+          "GET"
         );
-        setEntries(data.entries);
-        setWeeklySummary(data.weeklySummary);
+
+        console.log("Summary response received:", response);
+
+        // Debugging response validation
+        if (!response.entries || !Array.isArray(response.entries)) {
+          console.warn("⚠️ Response entries are missing or invalid.");
+        }
+
+        if (!response.weeklySummary) {
+          console.warn("⚠️ Weekly summary is missing from the response.");
+        }
+
+        // Validate and set data
+        setEntries(response.entries || []);
+        setWeeklySummary(response.weeklySummary || null);
       } catch (err) {
-        console.error("Error fetching summary:", err);
-        setError("Failed to fetch summary data. Please try again.");
-        setEntries([]); // Clear entries on error
-        setWeeklySummary(null); // Clear weekly summary on error
+        console.error("Failed to fetch summary:", err);
+        setError("Failed to fetch summary. Please try again.");
       }
     };
 
