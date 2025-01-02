@@ -101,31 +101,34 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     },
     []
   );
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        console.log("🔑 User logged in:", currentUser.uid);
+      try {
+        if (currentUser) {
+          console.log("🔑 User logged in:", currentUser.uid);
 
-        const token = await initializeToken();
-        if (!token) {
-          console.error("❌ Failed to initialize token. Logging out.");
-          await logout();
-          setAppLoading(false);
-          return;
+          const token = await initializeToken();
+          if (!token) {
+            console.error("❌ Failed to initialize token. Logging out.");
+            await logout();
+            return; // Early exit; ensures appLoading is set in `finally`
+          }
+
+          await fetchUserData(currentUser.uid);
+        } else {
+          console.log("❌ User is not logged in.");
+          setUser(null);
         }
-
-        await fetchUserData(currentUser.uid);
-      } else {
-        console.log("❌ User is not logged in.");
-        setUser(null);
-        setAppLoading(false);
+      } catch (error) {
+        console.error("❌ Error in onAuthStateChanged:", error);
+        setUser(null); // Ensure user is reset in case of an error
+      } finally {
+        setAppLoading(false); // Ensure loading ends in all cases
       }
     });
 
     return () => unsubscribe();
   }, [fetchUserData]);
-
   return (
     <UserContext.Provider
       value={{
