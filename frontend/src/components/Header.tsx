@@ -8,7 +8,7 @@ import {
 } from "react-icons/ai";
 import { MdLanguage } from "react-icons/md";
 import styles from "./styles/header.module.scss";
-import logo from "../assets/CalTrack-logo.png"; // Import the logo image
+import logo from "../assets/CalTrack-logo.png";
 import { AuthModule } from "../modules/AuthModule";
 import { useUser } from "../hooks/useUser";
 import { AddTodayWeight } from "../components/AddTodayWeight";

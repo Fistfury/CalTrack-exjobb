@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
+import logo from "../assets/CalTrack-logo.png";
 import styles from "./styles/footer.module.scss";
 
 export const Footer = () => {
@@ -7,7 +8,7 @@ export const Footer = () => {
     <footer className={styles.footer}>
       <div className={styles.container}>
         <Link to="/" className={styles.logo}>
-          <img src="/src/assets/CalTrack-logo.png" alt="CalTrack Logo" />
+          <img src={logo} alt="CalTrack Logo" className={styles.logoImage} />
           <span>CalTrack</span>
         </Link>
         <div className={styles.socialIcons}>
