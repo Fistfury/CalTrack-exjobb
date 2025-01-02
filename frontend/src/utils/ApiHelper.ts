@@ -13,11 +13,17 @@ export const fetchWithFirebaseToken = async <T>(
   method: "POST" | "PUT" | "GET" | "DELETE" = "POST"
 ): Promise<T> => {
   const url = `${API_URL}/${endpoint}`;
-  const currentToken = getFromLocalStorageWithExpiry<string>("firebaseToken");
+  let currentToken = getFromLocalStorageWithExpiry<string>("firebaseToken");
 
   if (!currentToken) {
-    console.warn("⏸️ Skipping API call: No valid token.");
-    throw new Error("Unauthorized: No valid token.");
+    console.warn("⏸️ No valid token found. Attempting token refresh...");
+    try {
+      currentToken = await refreshToken();
+      saveToLocalStorageWithExpiry("firebaseToken", currentToken, TOKEN_TTL);
+    } catch (error) {
+      console.error("❌ Failed to refresh token. Aborting API call:", error);
+      throw new Error("Unauthorized: Unable to refresh token.");
+    }
   }
 
   const options: RequestInit = {
@@ -41,7 +47,7 @@ export const fetchWithFirebaseToken = async <T>(
     }
 
     if (response.status === 401) {
-      console.warn("Unauthorized (401). Attempting token refresh...");
+      console.warn("❗ Unauthorized (401). Retrying after refreshing token...");
       try {
         const refreshedToken = await refreshToken();
         saveToLocalStorageWithExpiry(
@@ -64,7 +70,7 @@ export const fetchWithFirebaseToken = async <T>(
 
         return retryResponse.json() as Promise<T>;
       } catch (refreshError) {
-        console.error("🔴 Token refresh failed:", refreshError);
+        console.error("🔴 Token refresh failed during retry:", refreshError);
         throw new Error(
           "Authorization failed after retry. Please log in again."
         );

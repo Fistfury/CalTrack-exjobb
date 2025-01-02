@@ -21,12 +21,16 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = () => !!user;
 
   const logout = async () => {
-    await signOut(auth);
-    removeFromLocalStorage("firebaseToken");
-    removeFromLocalStorage("token");
-    setUser(null);
+    try {
+      await signOut(auth);
+      removeFromLocalStorage("firebaseToken");
+      removeFromLocalStorage("token");
+      setUser(null);
+      console.log("✅ User successfully logged out.");
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+    }
   };
-
   const initializeToken = async () => {
     try {
       const currentToken =
@@ -60,7 +64,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           `❌ Max retries reached. Could not fetch Firestore document for UID: ${uid}`
         );
         setUser(null);
-        setUserLoading(false); // Stop user loading if retries fail
+        setUserLoading(false);
         return;
       }
 
@@ -92,7 +96,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         );
         setUser(null);
       } finally {
-        setUserLoading(false); // Stop user loading regardless of success or failure
+        setUserLoading(false);
       }
     },
     []
@@ -103,21 +107,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       if (currentUser) {
         console.log("🔑 User logged in:", currentUser.uid);
 
-        await initializeToken();
-
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnapshot = await getDoc(userRef);
-
-        if (userSnapshot.exists()) {
-          console.log("✅ Firestore document found:", userSnapshot.data());
-          await fetchUserData(currentUser.uid);
-        } else {
-          console.warn(
-            "⚠️ User document missing. Redirecting to registration."
-          );
-          setUser(null);
+        const token = await initializeToken();
+        if (!token) {
+          console.error("❌ Failed to initialize token. Logging out.");
+          await logout();
           setAppLoading(false);
+          return;
         }
+
+        await fetchUserData(currentUser.uid);
       } else {
         console.log("❌ User is not logged in.");
         setUser(null);
