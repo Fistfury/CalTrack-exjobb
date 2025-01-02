@@ -50,9 +50,6 @@ export const DashboardPage = () => {
           You've met your calorie target on{" "}
           {entries.filter((e) => e.achieved).length} out of 7 days this week.
         </p>
-        <button onClick={() => setShowWeightEditor(true)}>
-          Edit Weekly Weights
-        </button>
       </header>
 
       {showWeightEditor && <WeeklyWeightEditor onSubmit={handleWeightSubmit} />}

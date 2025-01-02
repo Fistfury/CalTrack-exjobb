@@ -4,7 +4,6 @@ import styles from "./styles/profile.module.scss";
 import { useState } from "react";
 import { AddTodayWeight } from "../components/AddTodayWeight";
 import { WeeklyWeightEditor } from "../components/WeeklyWeightEditor";
-import { Button } from "../components/Button";
 import { getFromLocalStorageWithExpiry } from "../utils/storageHelpers";
 
 export const ProfilePage = () => {
@@ -153,12 +152,6 @@ export const ProfilePage = () => {
       {showTodayWeightModal && (
         <div className={styles.modal} tabIndex={-1}>
           <div className={styles.modalContent}>
-            <Button
-              type="button"
-              onClick={() => setShowTodayWeightModal(false)}
-            >
-              ✖
-            </Button>
             <AddTodayWeight
               onSubmit={() => {
                 refreshData();
@@ -171,12 +164,6 @@ export const ProfilePage = () => {
       {showWeeklyEditorModal && (
         <div className={styles.modal} tabIndex={-1}>
           <div className={styles.modalContent}>
-            <Button
-              type="button"
-              onClick={() => setShowWeeklyEditorModal(false)}
-            >
-              ✖
-            </Button>
             <WeeklyWeightEditor
               onSubmit={() => {
                 refreshData();
