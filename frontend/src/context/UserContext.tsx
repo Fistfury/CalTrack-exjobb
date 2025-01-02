@@ -102,15 +102,27 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         console.log("🔑 User logged in:", currentUser.uid);
-        setAppLoading(true); // App is loading while initializing token
+
         await initializeToken();
-        setUserLoading(true); // Start user data loading
-        await fetchUserData(currentUser.uid);
+
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          console.log("✅ Firestore document found:", userSnapshot.data());
+          await fetchUserData(currentUser.uid);
+        } else {
+          console.warn(
+            "⚠️ User document missing. Redirecting to registration."
+          );
+          setUser(null);
+          setAppLoading(false);
+        }
       } else {
         console.log("❌ User is not logged in.");
         setUser(null);
+        setAppLoading(false);
       }
-      setAppLoading(false); // Stop app loading once authentication is resolved
     });
 
     return () => unsubscribe();
