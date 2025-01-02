@@ -41,7 +41,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         type === "checkbox"
           ? checked
           : ["weight", "age", "height"].includes(name)
-          ? parseFloat(value) || "" // Convert to number, fallback to empty string
+          ? parseFloat(value) || ""
           : value,
     }));
   };
@@ -123,14 +123,10 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         acceptNotifications: form.acceptNotifications,
       };
 
-      console.log("✅ Data being sent to backend:", payload);
-
       const userData = await fetchWithFirebaseToken<RegisterResponse>(
         `auth/register`,
         payload
       );
-
-      console.log("✅ Backend response:", userData);
 
       // Update user context
       setUser({
@@ -140,7 +136,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         calorieTarget: userData.calorieTarget,
       });
 
-      onSuccess(); // Handle successful registration (e.g., navigate or close modal)
+      onSuccess();
     } catch (err) {
       localStorage.removeItem("token");
       console.error("❌ Registration error:", err);

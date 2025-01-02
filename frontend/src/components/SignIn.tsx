@@ -37,8 +37,6 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
 
       const { user: userData } = loginResponse;
 
-      console.log("✅ SignIn Response:", userData);
-
       // Update the user context with retrieved data
       setUser({
         id: firebaseUid,

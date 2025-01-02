@@ -15,7 +15,7 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
     Saturday: "",
     Sunday: "",
   });
-  const [todaysWeight, setTodaysWeight] = useState<number | null>(null); // Store today's weight
+  const [todaysWeight, setTodaysWeight] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const generateDateFromDay = (day: string): string => {
@@ -30,8 +30,8 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
       "Saturday",
     ];
 
-    const todayIndex = today.getDay(); // Index of today (0=Sunday, 6=Saturday)
-    const dayIndex = daysOfWeek.indexOf(day); // Index of the input day
+    const todayIndex = today.getDay();
+    const dayIndex = daysOfWeek.indexOf(day);
 
     // Calculate the difference in days
     const diff = dayIndex - todayIndex;
@@ -40,7 +40,7 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + diff);
 
-    return targetDate.toISOString().split("T")[0]; // Return date as YYYY-MM-DD
+    return targetDate.toISOString().split("T")[0];
   };
 
   useEffect(() => {

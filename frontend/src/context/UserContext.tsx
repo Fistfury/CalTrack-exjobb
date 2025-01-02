@@ -15,17 +15,16 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [appLoading, setAppLoading] = useState(true); // Tracks the app's loading state
+  const [userLoading, setUserLoading] = useState(false); // Tracks user data fetching
 
   const isLoggedIn = () => !!user;
 
   const logout = async () => {
-    console.log("🔒 Logging out...");
     await signOut(auth);
     removeFromLocalStorage("firebaseToken");
     removeFromLocalStorage("token");
     setUser(null);
-    console.log("✅ User logged out and token removed.");
   };
 
   const initializeToken = async () => {
@@ -45,7 +44,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       }
       console.log("Refreshing token...");
       const newToken = await refreshToken();
-      saveToLocalStorageWithExpiry("firebaseToken", newToken, 60 * 60 * 1000); // 1 hour TTL
+      saveToLocalStorageWithExpiry("firebaseToken", newToken, 60 * 60 * 1000);
     } catch (error) {
       console.error("Failed to refresh token on app start:", error);
     }
@@ -58,7 +57,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           `❌ Max retries reached. Could not fetch Firestore document for UID: ${uid}`
         );
         setUser(null);
-        setLoading(false); // Ensure loading is set to false on failure
+        setUserLoading(false); // Stop user loading if retries fail
         return;
       }
 
@@ -75,7 +74,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             weight: userData.weight || 0,
             calorieTarget: userData.calorieTarget || 0,
           });
-          setLoading(false); // Successfully fetched data, stop loading
         } else {
           console.warn(
             `⚠️ Firestore document not found for UID=${uid}. Retrying... (${
@@ -90,7 +88,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           (error as Error).message
         );
         setUser(null);
-        setLoading(false); // Stop loading even if there's an error
+      } finally {
+        setUserLoading(false); // Stop user loading regardless of success or failure
       }
     },
     []
@@ -100,13 +99,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         console.log("🔑 User logged in:", currentUser.uid);
+        setAppLoading(true); // App is loading while initializing token
         await initializeToken();
+        setUserLoading(true); // Start user data loading
         await fetchUserData(currentUser.uid);
       } else {
         console.log("❌ User is not logged in.");
         setUser(null);
-        setLoading(false);
       }
+      setAppLoading(false); // Stop app loading once authentication is resolved
     });
 
     return () => unsubscribe();
@@ -114,9 +115,16 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, isLoggedIn, logout, loading }}
+      value={{
+        user,
+        setUser,
+        isLoggedIn,
+        logout,
+        loading: appLoading || userLoading,
+      }}
     >
-      {loading ? <p>Loading user data...</p> : children}
+      {/* Show loading screen only during initial app load */}
+      {appLoading ? <p>Loading application...</p> : children}
     </UserContext.Provider>
   );
 };

@@ -21,7 +21,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   }
 
   if (!isLoggedIn()) {
-    console.log("🔒 ProtectedRoute: Redirecting to /");
     return <Navigate to="/" replace />;
   }
 
