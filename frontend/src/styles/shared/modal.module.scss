@@ -1,0 +1,98 @@
+@use "../variables.scss" as variables;
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .modalContent {
+    position: relative;
+    padding: 2rem;
+    background: variables.$light-gray;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1010;
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem; // Adds space below the headline
+      text-align: center;
+      color: variables.$primary-color;
+    }
+
+    .closeButton {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: variables.$gray-dark;
+      cursor: pointer;
+      z-index: 1020;
+
+      &:hover {
+        color: variables.$danger-color;
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem; // Adds consistent spacing between form elements
+
+      input[type="number"] {
+        width: 100%;
+        padding: 12px 14px; // Bigger input box
+        font-size: 1rem;
+        border: 1px solid variables.$gray-medium;
+        border-radius: 4px;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: variables.$primary-color;
+          outline: none;
+          box-shadow: 0 0 3px variables.$primary-color;
+        }
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem; // Space between the checkbox and the label text
+        font-size: 1rem;
+        color: variables.$gray-dark;
+      }
+
+      input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+        margin: 0; // Reset default margins
+      }
+
+      .submitButton {
+        background-color: variables.$primary-color;
+        color: white;
+        border: none;
+        padding: 12px 15px; // Adjusted padding for a bigger button
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        text-align: center;
+
+        &:hover {
+          background-color: variables.$secondary-color;
+        }
+      }
+    }
+  }
+}

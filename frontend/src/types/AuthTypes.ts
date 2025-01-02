@@ -30,4 +30,5 @@ export interface RegisterFormState {
   age: string;
   height: string;
   activityLevel: string;
+  acceptNotifications: boolean;
 }

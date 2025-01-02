@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { FieldValue, db } from "../config/firebase-config";
+import bcrypt from "bcryptjs";
 
 export const registerUser = async (
   req: Request,
@@ -7,17 +8,38 @@ export const registerUser = async (
 ): Promise<void> => {
   console.log("🟢 Incoming request body:", req.body);
 
-  const { name, email, password, age, weight, height, sex, activityLevel } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    age,
+    weight,
+    height,
+    sex,
+    activityLevel,
+    acceptNotifications,
+  } = req.body;
   const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
 
   try {
-    console.log("🔍 Checking if user already exists...");
-    const existingUser = await db.collection("users").doc(firebaseUid).get();
+    console.log("🔍 Decoded Token UID:", firebaseUid);
+    console.log("🔍 Request Body Email:", email);
+    console.log("🔍 Checking if user already exists in Firestore...");
+    const userDoc = db.collection("users").doc(firebaseUid);
+    const existingUser = await userDoc.get();
+
     if (existingUser.exists) {
-      res.status(400).json({ message: "User already exists." });
+      console.log(
+        `⚠️ User already exists in Firestore. UID=${firebaseUid}, Email=${email}`
+      );
+      res
+        .status(400)
+        .json({ message: "A user with this account already exists." });
       return;
     }
+
+    console.log("🔒 Hashing password...");
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     console.log("⚖️ Calculating calorie target...");
     const activityMultiplierMap: Record<string, number> = {
@@ -39,32 +61,32 @@ export const registerUser = async (
         ? 10 * weight + 6.25 * height - 5 * age + 5
         : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    const calorieTarget = Math.round(bmr * multiplier - 500); // For weight loss
+    const calorieTarget = Math.round(bmr * multiplier - 500);
 
-    // Macros calculation (percentages based on calorie target)
-    const proteins = Math.round((calorieTarget * 0.25) / 4); // 25% calories from protein
-    const carbs = Math.round((calorieTarget * 0.5) / 4); // 50% calories from carbs
-    const fats = Math.round((calorieTarget * 0.25) / 9); // 25% calories from fat
+    // Macros calculation
+    const proteins = Math.round((calorieTarget * 0.25) / 4);
+    const carbs = Math.round((calorieTarget * 0.5) / 4);
+    const fats = Math.round((calorieTarget * 0.25) / 9);
 
     console.log("🗂️ Saving user details to Firestore...");
-    const userRef = db.collection("users").doc(firebaseUid);
-    await userRef.set({
+    await userDoc.set({
       name,
       email,
-      password,
+      password: hashedPassword,
       age,
       weight,
       height,
       sex,
       activityLevel,
       calorieTarget,
+      acceptNotifications,
       createdAt: FieldValue.serverTimestamp(),
     });
 
     console.log("✅ User details saved to Firestore!");
 
     console.log("📦 Creating initial entry in 'entries' collection...");
-    const today = new Date().toISOString().split("T")[0]; // Current date
+    const today = new Date().toISOString().split("T")[0];
     await db.collection("entries").add({
       userId: firebaseUid,
       date: today,
@@ -92,7 +114,7 @@ export const registerUser = async (
 };
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
-  const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
+  const { uid: firebaseUid } = res.locals.user;
 
   try {
     console.log("🔍 Fetching user from Firestore with UID:", firebaseUid);
@@ -104,7 +126,6 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     const userData = userDoc.data();
-
     if (!userData) {
       res.status(500).json({ message: "Failed to retrieve user data." });
       return;
@@ -117,7 +138,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       user: {
         name: userData.name,
         weight: userData.weight,
-        calorieTarget: userData.calorieTarget, // Include calorieTarget
+        calorieTarget: userData.calorieTarget,
       },
     });
   } catch (error: any) {

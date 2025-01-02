@@ -1,19 +1,34 @@
+@use "../../styles/variables.scss" as variables;
+@use "../../styles/shared/modal.module.scss" as modal;
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #3498db;
-  color: white;
+  background-color: variables.$banner-bg-color;
+  color: variables.$light-gray;
 
   .logo {
+    display: flex; /* Aligns logo text and image horizontally */
+    align-items: center; /* Vertically centers the content */
     text-decoration: none;
-    color: white;
-    font-size: 1.5rem;
+    color: variables.$light-gray;
+    font-size: 1.8rem;
     font-weight: bold;
 
+    img {
+      width: 40px; /* Adjust width to fit the design */
+      height: auto;
+      margin-right: 0.5rem; /* Adds spacing between the image and text */
+    }
+
     &:hover {
-      color: #f1c40f;
+      color: variables.$primary-color;
+
+      img {
+        filter: brightness(1.2); /* Optional hover effect for the logo image */
+      }
     }
   }
 
@@ -22,20 +37,29 @@
       list-style: none;
       display: flex;
       align-items: center;
+      gap: 1rem;
       margin: 0;
       padding: 0;
 
       li {
-        margin: 0 0.5rem;
-
         .icon {
+          svg {
+            width: auto;
+            height: auto;
+            font-size: inherit;
+          }
+
           background: none;
           border: none;
-          color: white;
+          color: variables.$light-gray;
           cursor: pointer;
+          font-size: 1.5rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
           &:hover {
-            color: #f1c40f;
+            color: variables.$primary-color;
           }
         }
 
@@ -43,59 +67,65 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: none;
-          border: 1px solid white;
-          border-radius: 4px;
-          color: white;
-          padding: 0.25rem 0.5rem;
+          background: variables.$light-gray;
+          color: variables.$primary-color;
+          border: 1px solid variables.$gray-light;
+          border-radius: 5px;
+          padding: 0.5rem 0.8rem;
           cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.3s;
+
+          svg {
+            color: variables.$primary-color;
+          }
 
           &:hover {
-            background-color: white;
-            color: #3498db;
+            background: variables.$primary-color;
+            color: white;
+            svg {
+              color: white; /* Updates icon color on hover */
+            }
           }
         }
+      }
 
-        .profile {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
+      .profileIcons {
+        display: flex;
+        gap: 0.5rem;
       }
     }
   }
 
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  @media (max-width: 768px) {
+    flex-direction: column;
 
-    .modalContent {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      position: relative;
-      width: 90%;
-      max-width: 400px;
+    .logo {
+      margin-bottom: 1rem;
+      font-size: 2.5rem; /* Bigger size for mobile */
+    }
 
-      .closeButton {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
+    .nav {
+      ul {
+        flex-wrap: wrap;
+        justify-content: center;
 
-        &:hover {
-          color: red;
+        li {
+          .icon {
+            font-size: 2.5rem; /* Bigger icons for mobile */
+          }
+
+          .language {
+            padding: 0.5rem 1rem;
+            font-size: 1.2rem;
+            svg {
+              font-size: 2.5rem; /* Adjust icon size inside language button for mobile */
+            }
+          }
+        }
+
+        .profileIcons {
+          justify-content: center;
         }
       }
     }

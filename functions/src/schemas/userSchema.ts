@@ -13,6 +13,7 @@ export const userRegistrationSchema = z.object({
     ["sedentary", "light", "moderate", "active", "veryActive"],
     { required_error: "Activity level is required" }
   ),
+  acceptNotifications: z.boolean(),
 });
 
 export const userLoginSchema = z.object({

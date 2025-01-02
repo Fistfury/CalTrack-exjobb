@@ -11,12 +11,12 @@ import { Header } from "./components/Header";
 import { JSX } from "react";
 import { useUser } from "./hooks/useUser";
 import { UserProvider } from "./context/UserContext";
+import { Footer } from "./components/Footer";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn, loading } = useUser();
 
   if (loading) {
-    // Show a loading spinner or placeholder while user state is being resolved
     return <div>Loading...</div>;
   }
 
@@ -25,7 +25,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     return <Navigate to="/" replace />;
   }
 
-  console.log("🔓 ProtectedRoute: User authenticated");
   return children;
 };
 
@@ -55,6 +54,7 @@ const App = () => {
             />
           </Routes>
         </main>
+        <Footer />
       </Router>
     </UserProvider>
   );

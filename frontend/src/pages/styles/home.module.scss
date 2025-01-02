@@ -1,4 +1,7 @@
+@use "../../styles/variables.scss" as variables;
+
 .homePage {
+  /* Hero Section */
   .hero {
     position: relative;
     width: 100%;
@@ -9,47 +12,106 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      filter: brightness(0.8); // Add slight dark overlay
     }
 
-    /* Add a dark overlay */
-
     .heroContent {
-      position: absolute; /* Ensure it overlays the hero image */
-      top: 50%; /* Center vertically */
-      left: 50%; /* Center horizontally */
-      transform: translate(-50%, -50%); /* Adjust for natural offset */
-      text-align: center; /* Align text in the center */
-      color: var(--text-color);
-      text-shadow: 0 2px 4px var(--shadow-color);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: variables.$light-gray;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 
       h1 {
         font-size: 3rem;
         font-weight: bold;
         margin-bottom: 1rem;
+        color: variables.$primary-color;
       }
 
       p {
         font-size: 1.2rem;
         margin: 1rem 0;
+        line-height: 1.5;
       }
 
       .registerButton {
-        background-color: var(--primary-color);
-        color: #ffffff;
+        background-color: variables.$primary-color;
+        color: white;
         border: none;
         padding: 0.75rem 1.5rem;
         font-size: 1rem;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
 
         &:hover {
-          background-color: var(--secondary-color);
+          background-color: variables.$secondary-color;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
       }
     }
   }
 
+  /* Info Section */
+  .infoSection {
+    padding: 2rem 1rem;
+    background-color: variables.$light-gray;
+
+    h2 {
+      font-size: 2rem;
+      color: variables.$heading-color;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      color: variables.$gray-dark;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &::before {
+          content: "✔";
+          color: variables.$primary-color;
+        }
+      }
+    }
+
+    .registerButton {
+      display: block;
+      margin: 2rem auto 0;
+      background-color: variables.$primary-color;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: variables.$secondary-color;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+
+  /* Modal Styling */
   .modal {
     position: fixed;
     top: 0;
@@ -63,12 +125,13 @@
     z-index: 1000;
 
     .modalContent {
-      background: white;
+      background: variables.$background-color;
       padding: 2rem;
       border-radius: 8px;
       position: relative;
       width: 90%;
       max-width: 400px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
       .closeButton {
         position: absolute;
@@ -80,8 +143,45 @@
         cursor: pointer;
 
         &:hover {
-          color: red;
+          color: variables.$danger-color;
         }
+      }
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .heroContent {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .registerButton {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    .infoSection {
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+
+      ul li {
+        font-size: 0.9rem;
+      }
+
+      .registerButton {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
       }
     }
   }

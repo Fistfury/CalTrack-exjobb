@@ -1,0 +1,17 @@
+@use "../../styles/shared/modal.module.scss" as modal;
+
+.weeklyWeightEditor {
+  @extend modal.modal;
+
+  .modalContent {
+    @extend modal.modalContent;
+  }
+
+  .modalHeader {
+    @extend modal.modalHeader;
+  }
+
+  .form {
+    @extend modal.form;
+  }
+}

@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const functions = getFunctions(app);
+const messaging = getMessaging(app);
 
 if (
   import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true" ||
@@ -27,4 +29,4 @@ if (
   connectFunctionsEmulator(functions, "localhost", 5001); // Functions Emulator Port
 }
 
-export { app, db, auth, functions };
+export { app, db, auth, functions, messaging };

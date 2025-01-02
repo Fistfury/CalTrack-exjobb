@@ -1,48 +1,41 @@
-@use "../variables.scss";
+@use "../variables.scss" as variables;
 
 .input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border: 1px solid variables.$gray-medium;
   border-radius: 4px;
+  font-size: 0.9rem;
   width: 100%;
-  font-size: 1rem;
-  font-weight: 400;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+
+  // Remove arrows in number inputs
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  &[type="number"]::-webkit-inner-spin-button,
+  &[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
   &:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+    border-color: variables.$primary-color;
     outline: none;
-  }
-
-  &::placeholder {
-    color: #aaa;
-    font-style: italic;
-  }
-
-  &:disabled {
-    background-color: #f4f4f4;
-    border-color: #ccc;
-    cursor: not-allowed;
-    color: #aaa;
-  }
-
-  &--error {
-    border-color: #e74c3c;
-
-    &:focus {
-      border-color: #c0392b;
-      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
-    }
+    box-shadow: 0 0 3px variables.$primary-color;
   }
 
   &--small {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 
   &--large {
-    padding: 1rem;
-    font-size: 1.2rem;
+    padding: 10px 14px;
+    font-size: 1.1rem;
+  }
+
+  &--error {
+    border-color: variables.$danger-color;
   }
 }
