@@ -9,7 +9,7 @@ import { WeeklyWeightEditor } from "../components/WeeklyWeightEditor";
 
 export const DashboardPage = () => {
   const { user } = useUser();
-  const { entries, error, refreshSummary } = useSummary("token");
+  const { entries, weeklySummary, error, refreshSummary } = useSummary("token");
 
   const [showWeightEditor, setShowWeightEditor] = useState(false);
 
@@ -45,7 +45,8 @@ export const DashboardPage = () => {
     <div className={styles.dashboard}>
       <header className={styles.header}>
         <h1>Welcome, {user.name}</h1>
-        <p>Your calorie target: {user.calorieTarget} kcal</p>
+        <h3>Calorie Target</h3>
+        <p>{weeklySummary?.avgCalories?.toFixed(0) || "N/A"} kcal/day</p>
         <p>
           You've met your calorie target on{" "}
           {entries.filter((e) => e.achieved).length} out of 7 days this week.
@@ -63,7 +64,7 @@ export const DashboardPage = () => {
             );
             return entry ? (
               <div className={styles.tileContent}>
-                <p>{entry.calories || 0} kcal</p>
+                <p>{weeklySummary?.avgCalories?.toFixed(0) || "N/A"} kcal</p>
                 <p>{entry.achieved ? "✅" : "❌"}</p>
               </div>
             ) : null;
