@@ -5,6 +5,7 @@ import "./config/firebase-config";
 import routes from "./routes";
 import * as admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { sendDailyReminder } from "./config/dailyReminder";
 
 const app = express();
 
@@ -91,3 +92,6 @@ app.use("/", routes);
 
 // Export the app
 export const api = functions.https.onRequest(app);
+
+// Export the Daily Reminder Function
+export { sendDailyReminder };

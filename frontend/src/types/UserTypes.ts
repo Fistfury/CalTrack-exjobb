@@ -24,6 +24,7 @@ export interface Entry {
 }
 
 export interface SummaryResponse {
+  userId(arg0: Entry[], userId: unknown): unknown;
   entries: Entry[];
   weeklySummary: WeeklySummary;
 }

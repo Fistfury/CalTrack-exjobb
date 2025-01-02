@@ -1,63 +1,65 @@
 @use "sass:color";
-@use "../variables.scss";
+@use "../variables.scss" as variables;
 
 .button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
   background-color: variables.$primary-color;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
+  border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: color.adjust(variables.$primary-color, $lightness: -10%);
-  }
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
 
   &:disabled {
-    background-color: #ccc;
+    background-color: variables.$gray-light;
     cursor: not-allowed;
     opacity: 0.7;
   }
 
   &--primary {
     background-color: variables.$primary-color;
+    color: white;
 
     &:hover {
-      background-color: color.adjust(
-        variables.$primary-color,
-        $lightness: -10%
-      );
+      background-color: variables.$secondary-color;
     }
   }
 
   &--secondary {
-    background-color: variables.$secondary-color;
+    background-color: variables.$gray-dark;
+    color: white;
+
+    .closeButton {
+      all: unset; // Reset all inherited button styles
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.5rem;
+      color: variables.$gray-dark;
+      cursor: pointer;
+      z-index: 1020;
+
+      &:hover {
+        color: variables.$danger-color;
+      }
+    }
 
     &:hover {
-      background-color: color.adjust(
-        variables.$secondary-color,
-        $lightness: -10%
-      );
+      background-color: variables.$gray-medium;
     }
   }
 
   &--danger {
     background-color: variables.$danger-color;
+    color: white;
 
     &:hover {
       background-color: color.adjust(variables.$danger-color, $lightness: -10%);
     }
-  }
-
-  &--full-width {
-    width: 100%;
   }
 
   &--small {
@@ -68,5 +70,15 @@
   &--large {
     padding: 1rem 2rem;
     font-size: 1.2rem;
+  }
+
+  &--full-width {
+    width: 100%;
+    max-width: 250px; /* Limit width for mobile */
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem; /* Smaller buttons for mobile */
   }
 }

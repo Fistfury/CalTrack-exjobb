@@ -24,6 +24,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
     age: "",
     height: "",
     activityLevel: "sedentary",
+    acceptNotifications: false,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,8 +33,17 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : ["weight", "age", "height"].includes(name)
+          ? parseFloat(value) || "" // Convert to number, fallback to empty string
+          : value,
+    }));
   };
 
   const validateForm = (): string | null => {
@@ -49,12 +59,20 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
       if (!sex || !weight || !age || !height) {
         return "Please fill in all fields in Step 2.";
       }
-      if (
-        parseInt(age, 10) <= 0 ||
-        parseFloat(weight) <= 0 ||
-        parseFloat(height) <= 0
-      ) {
-        return "Please provide valid positive numbers for weight, age, and height.";
+
+      // Convert string values to numbers and validate
+      const parsedWeight = parseFloat(weight);
+      const parsedAge = parseInt(age, 10);
+      const parsedHeight = parseFloat(height);
+
+      if (isNaN(parsedWeight) || parsedWeight <= 0) {
+        return "Please provide a valid positive number for weight.";
+      }
+      if (isNaN(parsedAge) || parsedAge <= 0) {
+        return "Please provide a valid positive number for age.";
+      }
+      if (isNaN(parsedHeight) || parsedHeight <= 0) {
+        return "Please provide a valid positive number for height.";
       }
     }
 
@@ -91,9 +109,9 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
       );
       const token = await refreshToken();
       const firebaseUid = userCredential.user.uid;
+      localStorage.setItem("token", token);
 
-      console.log("✅ Data being sent to backend:", {
-        firebaseUid,
+      const payload = {
         name: form.name,
         email: form.email,
         password: form.password,
@@ -102,29 +120,19 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         age: parseInt(form.age, 10),
         height: parseFloat(form.height),
         activityLevel: form.activityLevel,
-      });
-      localStorage.setItem("token", token);
+        acceptNotifications: form.acceptNotifications,
+      };
 
-      // Send data to backend
+      console.log("✅ Data being sent to backend:", payload);
+
       const userData = await fetchWithFirebaseToken<RegisterResponse>(
         `auth/register`,
-        token,
-        {
-          firebaseUid,
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          sex: form.sex,
-          weight: parseFloat(form.weight),
-          age: parseInt(form.age, 10),
-          height: parseFloat(form.height),
-          activityLevel: form.activityLevel,
-        }
+        payload
       );
 
       console.log("✅ Backend response:", userData);
 
-      // Set user in context
+      // Update user context
       setUser({
         id: firebaseUid,
         name: form.name,
@@ -132,8 +140,9 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         calorieTarget: userData.calorieTarget,
       });
 
-      onSuccess(); // Redirect or close modal
+      onSuccess(); // Handle successful registration (e.g., navigate or close modal)
     } catch (err) {
+      localStorage.removeItem("token");
       console.error("❌ Registration error:", err);
       setError(
         err instanceof Error ? err.message : "An unknown error occurred."
@@ -144,7 +153,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
   };
 
   return (
-    <div className={styles.registerUser}>
+    <div className={styles.registerForm}>
       {step === 1 ? (
         <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
           <h2>Step 1: Account Details</h2>
@@ -171,6 +180,20 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
             onChange={handleChange}
             required
           />
+          <label>
+            <Input
+              type="checkbox"
+              name="acceptNotifications"
+              checked={form.acceptNotifications}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  acceptNotifications: e.target.checked,
+                }))
+              }
+            />
+            Accept Notifications
+          </label>
           {error && <p className={styles.error}>{error}</p>}
           <Button type="button" onClick={handleNextStep}>
             Next

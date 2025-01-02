@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { db, FieldValue } from "../config/firebase-config";
+import { calculateMacros } from "../utils/calculationHelpers";
+import { validateUserData } from "../utils/validateUserData";
 
 export const updateWeight = async (
   req: Request,
@@ -19,59 +21,28 @@ export const updateWeight = async (
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      console.error(`❌ User not found for UID=${firebaseUid}`);
       res.status(404).json({ message: "User not found." });
       return;
     }
 
-    const userData = userDoc.data();
-    if (!userData) {
-      console.error(`❌ User data is undefined for UID=${firebaseUid}`);
+    const rawUserData = userDoc.data();
+    if (!rawUserData) {
       res.status(500).json({ message: "User data retrieval failed." });
       return;
     }
 
-    const { age, height, sex, activityLevel } = userData;
+    console.log(`📊 Raw User Data Retrieved:`, rawUserData);
 
-    console.log(
-      `📊 User Data Retrieved: ${JSON.stringify({
-        age,
-        height,
-        sex,
-        activityLevel,
-      })}`
+    // Validate and cast Firestore data to UserData type
+    const userData = validateUserData(rawUserData);
+    console.log(`📊 Validated User Data:`, userData);
+
+    // Calculate macros
+    const { calorieTarget, proteins, carbs, fats } = calculateMacros(
+      userData,
+      weight
     );
-
-    console.log("⚖️ Recalculating calorie target...");
-    const activityMultiplierMap: Record<string, number> = {
-      sedentary: 1.2,
-      light: 1.375,
-      moderate: 1.55,
-      active: 1.725,
-      veryActive: 1.9,
-    };
-
-    const multiplier = activityMultiplierMap[activityLevel];
-    const bmr =
-      sex === "male"
-        ? 10 * weight + 6.25 * height - 5 * age + 5
-        : 10 * weight + 6.25 * height - 5 * age - 161;
-
-    const calorieTarget = Math.round(bmr * multiplier - 500);
-
-    // Macros calculation
-    const proteins = Math.round((calorieTarget * 0.25) / 4);
-    const carbs = Math.round((calorieTarget * 0.5) / 4);
-    const fats = Math.round((calorieTarget * 0.25) / 9);
-
-    console.log(
-      `📊 Updated Calorie Target and Macros: ${JSON.stringify({
-        calorieTarget,
-        proteins,
-        carbs,
-        fats,
-      })}`
-    );
+    console.log(`📊 Updated Macros:`, { calorieTarget, proteins, carbs, fats });
 
     console.log("🗂️ Updating user weight and calorie target...");
     await userRef.update({
@@ -80,7 +51,6 @@ export const updateWeight = async (
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    console.log("📦 Updating today's entry...");
     const today = new Date().toISOString().split("T")[0];
     const entrySnapshot = await db
       .collection("entries")
@@ -90,7 +60,7 @@ export const updateWeight = async (
 
     if (!entrySnapshot.empty) {
       const entryId = entrySnapshot.docs[0].id;
-      console.log(`📝 Updating existing entry for today: EntryID=${entryId}`);
+      console.log(`📝 Updating today's entry: EntryID=${entryId}`);
       await db.collection("entries").doc(entryId).update({
         weight,
         calories: calorieTarget,
@@ -100,7 +70,7 @@ export const updateWeight = async (
         updatedAt: FieldValue.serverTimestamp(),
       });
     } else {
-      console.log("📄 No entry found for today, creating a new entry...");
+      console.log("📄 Creating today's weight entry...");
       await db.collection("entries").add({
         userId: firebaseUid,
         date: today,
@@ -120,8 +90,12 @@ export const updateWeight = async (
       carbs,
       fats,
     });
-  } catch (error: any) {
-    console.error("❌ Error updating weight:", error.message);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("❌ Error updating weight:", error.message);
+    } else {
+      console.error("❌ Error updating weight:", error);
+    }
     res.status(500).json({ message: "Failed to update weight." });
   }
 };

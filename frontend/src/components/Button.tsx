@@ -8,6 +8,7 @@ export const Button = ({
   variant = "primary",
   size,
   fullWidth,
+  className,
   disabled,
 }: ButtonProps) => {
   const classNames = [
@@ -15,6 +16,7 @@ export const Button = ({
     variant && styles[`button--${variant}`],
     size && styles[`button--${size}`],
     fullWidth && styles["button--full-width"],
+    className, // Allow external class to override or extend styles
   ]
     .filter(Boolean)
     .join(" ");

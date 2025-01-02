@@ -1,7 +1,8 @@
 export interface InputProps {
-  placeholder: string;
-  value: string;
+  placeholder?: string;
+  value?: string | number;
   name?: string;
+  checked?: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   required?: boolean;
@@ -13,8 +14,9 @@ export interface InputProps {
 export interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
+  className?: string;
   type?: "button" | "submit";
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "danger" | "close";
   size?: "small" | "large";
   fullWidth?: boolean;
   disabled?: boolean;
@@ -30,14 +32,20 @@ export interface AddDataProps {
   }) => void;
 }
 
+export interface AddTodayWeightProps {
+  onSubmit: () => void;
+}
+
+export interface WeeklyWeightEditorProps {
+  onSubmit: () => void;
+}
+
 export interface UpdateWeightProps {
-  token: string;
   currentWeight: number;
   onWeightUpdate: (newWeight: number) => void;
 }
 
 export interface WeeklyWeightFormProps {
-  token: string;
   onWeightSubmit: (day: string, weight: number) => void;
 }
 

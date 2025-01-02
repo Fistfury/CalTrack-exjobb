@@ -1,37 +1,47 @@
-@use "../../styles/shared/input.module" as input;
-@use "../../styles/shared/button.module" as button;
-.registerForm {
+@use "../../styles/shared/modal.module.scss" as modal;
+@use "../../styles/variables.scss" as variables;
+
+.signinForm {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   max-width: 400px;
   margin: 0 auto;
   padding: 2rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  border: 1px solid variables.$gray-light;
+  border-radius: 8px;
+  background-color: variables.$light-gray;
 
   .input {
-    @extend .input;
+    padding: 10px;
+    border: 1px solid variables.$gray-medium;
+    border-radius: 5px;
+    font-size: 1rem;
   }
 
   .button {
-    @extend .button;
-  }
+    padding: 10px 15px;
+    background-color: variables.$primary-color;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 
-  .textarea {
-    @extend .input;
-    resize: vertical;
-    height: 80px;
+    &:hover {
+      background-color: variables.$secondary-color;
+    }
   }
 
   .error {
-    color: red;
+    color: variables.$danger-color;
     font-size: 0.9rem;
+    text-align: center;
   }
 
   .success {
-    color: green;
+    color: variables.$secondary-color;
     font-size: 0.9rem;
+    text-align: center;
   }
 }

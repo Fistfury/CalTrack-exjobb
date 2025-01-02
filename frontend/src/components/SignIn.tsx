@@ -32,8 +32,7 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
 
       // Fetch user data from backend
       const loginResponse = await fetchWithFirebaseToken<LoginResponse>(
-        "auth/login",
-        token
+        "auth/login"
       );
 
       const { user: userData } = loginResponse;

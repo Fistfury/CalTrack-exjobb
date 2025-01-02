@@ -1,54 +1,77 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
-import { SummaryResponse } from "../types/UserTypes";
+import { Entry, SummaryResponse } from "../types/UserTypes";
+
+// function generateWeekEntries(entries: Entry[], userId: string): Entry[] {
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+
+//   const weekEntries: Entry[] = [];
+//   for (let i = 0; i < 7; i++) {
+//     const currentDate = new Date(today); // Clone today's date
+//     currentDate.setDate(today.getDate() + i); // Increment by `i` days
+//     const dateString = currentDate.toISOString().split("T")[0];
+
+//     const existingEntry = entries.find((entry) => entry.date === dateString);
+//     weekEntries.push(
+//       existingEntry || {
+//         date: dateString,
+//         calories: 0,
+//         weight: 0, // Default weight for missing entries
+//         achieved: false,
+//         userId,
+//       }
+//     );
+//   }
+
+//   console.log("🟢 Generated Week Entries:", weekEntries);
+//   return weekEntries;
+// }
 
 export const useSummary = (token: string | null) => {
-  const [entries, setEntries] = useState<SummaryResponse["entries"]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [weeklySummary, setWeeklySummary] = useState<
     SummaryResponse["weeklySummary"] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!token) {
-      console.error("🚨 Missing token, cannot fetch summary.");
-      setError("Authorization token missing. Please log in again.");
-      return;
-    }
-
-    const fetchSummary = async () => {
-      console.log("Fetching summary with token:", token);
+  const fetchSummary = useCallback(
+    async (retries = 3) => {
+      if (!token) {
+        console.warn("⏸️ Skipping fetchSummary: No token available.");
+        setError("Token is missing. Please log in again.");
+        return;
+      }
 
       try {
         const response: SummaryResponse = await fetchWithFirebaseToken(
           "entries/summary",
-          token,
           undefined,
           "GET"
         );
-
-        console.log("Summary response received:", response);
-
-        // Debugging response validation
-        if (!response.entries || !Array.isArray(response.entries)) {
-          console.warn("⚠️ Response entries are missing or invalid.");
-        }
-
-        if (!response.weeklySummary) {
-          console.warn("⚠️ Weekly summary is missing from the response.");
-        }
-
-        // Validate and set data
+        console.log("📦 Raw Entries Response:", response.entries);
         setEntries(response.entries || []);
         setWeeklySummary(response.weeklySummary || null);
       } catch (err) {
-        console.error("Failed to fetch summary:", err);
-        setError("Failed to fetch summary. Please try again.");
+        if (retries > 0) {
+          console.warn(
+            `Retrying fetchSummary... (${retries - 1} retries left)`
+          );
+          setTimeout(() => fetchSummary(retries - 1), 1000); // Delay retries
+        } else {
+          console.error("❌ Failed to fetch summary after retries:", err);
+          setError("Failed to fetch summary. Please try again later.");
+        }
       }
-    };
+    },
+    [token]
+  );
 
-    fetchSummary();
-  }, [token]);
+  useEffect(() => {
+    if (token) {
+      fetchSummary();
+    }
+  }, [fetchSummary, token]);
 
-  return { entries, weeklySummary, error };
+  return { entries, weeklySummary, error, refreshSummary: fetchSummary };
 };

@@ -1,0 +1,58 @@
+@use "../../styles/variables.scss" as variables;
+
+.footer {
+  background-color: variables.$banner-bg-color;
+  color: variables.$light-gray;
+  text-align: center;
+  padding: 2rem 1rem;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: variables.$light-gray;
+      font-size: 1.8rem;
+      font-weight: bold;
+
+      img {
+        width: 40px;
+        height: auto;
+        margin-right: 0.5rem;
+      }
+
+      &:hover {
+        color: variables.$primary-color;
+
+        img {
+          filter: brightness(1.2);
+        }
+      }
+    }
+
+    .socialIcons {
+      display: flex;
+      gap: 1rem;
+
+      a {
+        color: variables.$light-gray;
+        font-size: 1.5rem;
+        transition: color 0.3s;
+
+        &:hover {
+          color: variables.$primary-color;
+        }
+      }
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+  }
+}
