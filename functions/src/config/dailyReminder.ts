@@ -1,43 +1,68 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { db } from "./firebase-config";
 
 export const sendDailyReminder = functions.pubsub
   .schedule("every day 08:00")
   .timeZone("Europe/Stockholm")
   .onRun(async () => {
-    try {
-      const usersSnapshot = await db.collection("users").get();
+    console.log("🔔 Starting daily reminder function...");
 
-      const messages: admin.messaging.Message[] = usersSnapshot.docs
-        .map((doc) => {
-          const userData = doc.data();
-          if (userData.acceptNotifications && userData.fcmToken) {
-            return {
-              token: userData.fcmToken,
-              notification: {
-                title: "Daily Weight Reminder",
-                body: "Don't forget to log your weight today!",
-              },
-            } as admin.messaging.Message;
-          }
-          return null; // Explicitly return null for non-notifiable users
-        })
-        .filter((msg): msg is admin.messaging.Message => msg !== null); // Type predicate for filtering non-null messages
+    try {
+      // Fetch all users from Firestore
+      const usersSnapshot = await admin.firestore().collection("users").get();
+
+      if (usersSnapshot.empty) {
+        console.log("ℹ️ No users found in the Firestore collection.");
+        return;
+      }
+
+      // Prepare FCM messages for users with notifications enabled
+      const messages: admin.messaging.TokenMessage[] = [];
+      usersSnapshot.forEach((doc) => {
+        const userData = doc.data();
+        if (userData.acceptNotifications && userData.fcmToken) {
+          messages.push({
+            token: userData.fcmToken,
+            notification: {
+              title: "Daily Weight Reminder",
+              body: "Don't forget to log your weight today!",
+            },
+            data: {
+              userId: doc.id, // Include additional data if needed
+            },
+          });
+        }
+      });
 
       if (messages.length > 0) {
+        console.log(`🔄 Sending notifications to ${messages.length} users...`);
         const response = await admin.messaging().sendAll(messages);
-        console.log(`✅ Messages sent: ${response.successCount}`);
+
+        console.log(
+          `✅ Notifications sent successfully: ${response.successCount}`
+        );
         if (response.failureCount > 0) {
-          console.warn("⚠️ Some messages failed to send:", response.responses);
+          console.warn(
+            `⚠️ Failed to send ${response.failureCount} notifications.`
+          );
+          response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+              console.error(
+                `❌ Error sending to token [${messages[idx].token}]:`,
+                resp.error
+              );
+            }
+          });
         }
       } else {
         console.log("ℹ️ No users opted in for notifications.");
       }
     } catch (error) {
       console.error(
-        "❌ Error sending daily reminders:",
+        "❌ Error occurred while sending daily reminders:",
         error instanceof Error ? error.message : error
       );
     }
+
+    console.log("✅ Daily reminder function completed.");
   });
