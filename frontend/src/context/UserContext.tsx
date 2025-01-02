@@ -39,14 +39,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           decodedToken.exp * 1000 > Date.now()
         ) {
           console.log("✅ Token is still valid.");
-          return;
+          return currentToken; // Return token only if valid
         }
       }
       console.log("Refreshing token...");
       const newToken = await refreshToken();
       saveToLocalStorageWithExpiry("firebaseToken", newToken, 60 * 60 * 1000);
+      return newToken;
     } catch (error) {
       console.error("Failed to refresh token on app start:", error);
+      removeFromLocalStorage("firebaseToken"); // Clear invalid token
+      return null; // Return null if token is invalid
     }
   };
 
