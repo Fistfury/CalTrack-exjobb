@@ -3,6 +3,7 @@ import { SignIn } from "../components/SignIn";
 import { RegisterUser } from "../components/RegisterUser";
 import styles from "./styles/authModule.module.scss";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface AuthModuleProps {
   isRegister: boolean; // Prop to determine initial mode
@@ -12,13 +13,14 @@ interface AuthModuleProps {
 export const AuthModule = ({ isRegister, onSuccess }: AuthModuleProps) => {
   const [isRegisterMode, setIsRegisterMode] = useState(isRegister);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSuccess = () => {
     setTimeout(() => {
       onSuccess(); // Close modal
       console.log("➡️ AuthModule: Navigating to /profile");
       navigate("/profile"); // Navigate to profile after ensuring context is updated
-    }, 100); // Add a small delay to ensure `UserContext` is updated
+    }, 100);
   };
 
   const toggleAuthMode = () => {
@@ -33,9 +35,9 @@ export const AuthModule = ({ isRegister, onSuccess }: AuthModuleProps) => {
         <SignIn onSuccess={handleSuccess} />
       )}
       <p className={styles.toggleText}>
-        {isRegisterMode ? "Already have an account?" : "New to CalTrack?"}{" "}
+        {isRegisterMode ? t("alreadyHaveAccount") : t("newToCalTrack")}{" "}
         <button onClick={toggleAuthMode} className={styles.toggleButton}>
-          {isRegisterMode ? "Sign In" : "Register"}
+          {isRegisterMode ? t("signIn") : t("register")}
         </button>
       </p>
     </div>

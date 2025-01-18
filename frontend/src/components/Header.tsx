@@ -13,6 +13,7 @@ import { AuthModule } from "../modules/AuthModule";
 import { useUser } from "../hooks/useUser";
 import { AddTodayWeight } from "../components/AddTodayWeight";
 import { useSummary } from "../hooks/useSummary";
+import { useTranslation } from "react-i18next";
 
 export const Header = () => {
   const { logout, isLoggedIn } = useUser();
@@ -20,11 +21,11 @@ export const Header = () => {
   const { refreshSummary } = useSummary(token);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
-  const [language, setLanguage] = useState("EN");
   const [showTodayWeightModal, setShowTodayWeightModal] = useState(false);
-
+  const { i18n } = useTranslation();
   const toggleLanguage = () => {
-    setLanguage((prev) => (prev === "EN" ? "SV" : "EN"));
+    const newLang = i18n.language === "en" ? "sv" : "en";
+    i18n.changeLanguage(newLang);
   };
 
   const toggleAuthModal = (registerMode: boolean) => {
@@ -81,7 +82,8 @@ export const Header = () => {
             </li>
             <li>
               <button onClick={toggleLanguage} className={styles.language}>
-                <MdLanguage className={styles.icon} /> {language}
+                <MdLanguage className={styles.icon} />{" "}
+                {i18n.language.toUpperCase()}
               </button>
             </li>
           </ul>

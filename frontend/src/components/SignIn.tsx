@@ -8,8 +8,10 @@ import { fetchWithFirebaseToken } from "../utils/ApiHelper";
 import { refreshToken } from "../utils/authUtils";
 import { useUser } from "../hooks/useUser";
 import { SignInProps, LoginResponse } from "../types/AuthTypes";
+import { useTranslation } from "react-i18next";
 
 export const SignIn = ({ onSuccess }: SignInProps) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +53,7 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
       onSuccess(); // Trigger success callback
     } catch (err) {
       console.error("❌ SignIn Error:", err);
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setLoading(false);
     }
@@ -61,10 +61,10 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
 
   return (
     <form onSubmit={handleSignIn} className={styles.signInForm}>
-      <h2>Sign In</h2>
+      <h2>{t("signIn")}</h2>
       <Input
         name="email"
-        placeholder="Enter your email"
+        placeholder={t("enterEmail")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
@@ -72,13 +72,13 @@ export const SignIn = ({ onSuccess }: SignInProps) => {
       <Input
         name="password"
         type="password"
-        placeholder="Enter your password"
+        placeholder={t("enterPassword")}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
       />
       <Button type="submit" disabled={loading}>
-        {loading ? "Signing In..." : "Sign In"}
+        {loading ? t("signingIn") : t("signIn")}
       </Button>
       {error && <p className={styles.error}>{error}</p>}
     </form>

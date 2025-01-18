@@ -4,6 +4,7 @@ import modalStyles from "../styles/shared/modal.module.scss";
 import { AddTodayWeightProps } from "../types/ComponentTypes";
 import { Button } from "./Button";
 import { Input } from "./Input";
+import { useTranslation } from "react-i18next";
 
 /**
  * Component to add today's weight and optionally mark if calorie goals were met.
@@ -11,6 +12,8 @@ import { Input } from "./Input";
  * any relevant errors or feedback.
  */
 export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
+  const { t } = useTranslation();
+
   // State to track weight input
   const [weight, setWeight] = useState("");
 
@@ -31,7 +34,7 @@ export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
     setError(null);
 
     if (!weight) {
-      setError("Weight is required.");
+      setError(t("weightRequired"));
       return;
     }
 
@@ -54,7 +57,7 @@ export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
       setCaloriesMet(false);
     } catch (err) {
       console.error("Error adding today's weight:", err);
-      setError("Failed to add weight. Please try again.");
+      setError(t("weightAddError"));
     }
   };
 
@@ -63,7 +66,7 @@ export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
       <div className={modalStyles.modalContent}>
         {/* Modal header with a title and close button */}
         <header className={modalStyles.modalHeader}>
-          <h2>Add Today's Weight</h2>
+          <h2>{t("addWeightTitle")}</h2>
           <Button
             type="button"
             onClick={onSubmit}
@@ -79,7 +82,7 @@ export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
           {/* Weight input field */}
           <Input
             type="number"
-            placeholder="Enter weight (kg)"
+            placeholder={t("weightPlaceholder")}
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
             required
@@ -92,12 +95,12 @@ export const AddTodayWeight = ({ onSubmit }: AddTodayWeightProps) => {
               checked={caloriesMet}
               onChange={(e) => setCaloriesMet(e.target.checked)}
             />
-            Calories met today
+            {t("caloriesMet")}
           </label>
 
           {/* Submit button */}
           <Button type="submit" className={modalStyles.submitButton}>
-            Submit
+            {t("submit")}
           </Button>
         </form>
 

@@ -12,6 +12,7 @@ import { JSX } from "react";
 import { useUser } from "./hooks/useUser";
 import { UserProvider } from "./context/UserContext";
 import { Footer } from "./components/Footer";
+import "./i18n";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn, loading } = useUser();

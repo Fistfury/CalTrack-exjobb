@@ -6,8 +6,10 @@ import styles from "./styles/dashboard.module.scss";
 import "react-calendar/dist/Calendar.css";
 import { useState } from "react";
 import { WeeklyWeightEditor } from "../components/WeeklyWeightEditor";
+import { useTranslation } from "react-i18next";
 
 export const DashboardPage = () => {
+  const { t } = useTranslation();
   const { user } = useUser();
   const { entries, weeklySummary, error, refreshSummary } = useSummary("token");
 
@@ -38,18 +40,22 @@ export const DashboardPage = () => {
   };
 
   if (!user) {
-    return <p>Loading user data...</p>;
+    return <p>{t("loadingUserData")}</p>;
   }
 
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
-        <h1>Welcome, {user.name}</h1>
-        <h3>Calorie Target</h3>
-        <p>{weeklySummary?.avgCalories?.toFixed(0) || "N/A"} kcal/day</p>
+        <h1>{t("welcomeUser", { name: user.name })}</h1>
+        <h3>{t("calorieTarget")}</h3>
         <p>
-          You've met your calorie target on{" "}
-          {entries.filter((e) => e.achieved).length} out of 7 days this week.
+          {weeklySummary?.avgCalories?.toFixed(0) || t("notAvailable")} kcal/
+          {t("day")}
+        </p>
+        <p>
+          {t("calorieTargetMet", {
+            days: entries.filter((e) => e.achieved).length,
+          })}
         </p>
       </header>
 
@@ -64,7 +70,10 @@ export const DashboardPage = () => {
             );
             return entry ? (
               <div className={styles.tileContent}>
-                <p>{weeklySummary?.avgCalories?.toFixed(0) || "N/A"} kcal</p>
+                <p>
+                  {weeklySummary?.avgCalories?.toFixed(0) || t("notAvailable")}{" "}
+                  kcal
+                </p>
                 <p>{entry.achieved ? "✅" : "❌"}</p>
               </div>
             ) : null;

@@ -2,32 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
 import { Entry, SummaryResponse } from "../types/UserTypes";
 
-// function generateWeekEntries(entries: Entry[], userId: string): Entry[] {
-//   const today = new Date();
-//   today.setHours(0, 0, 0, 0);
-
-//   const weekEntries: Entry[] = [];
-//   for (let i = 0; i < 7; i++) {
-//     const currentDate = new Date(today); // Clone today's date
-//     currentDate.setDate(today.getDate() + i); // Increment by `i` days
-//     const dateString = currentDate.toISOString().split("T")[0];
-
-//     const existingEntry = entries.find((entry) => entry.date === dateString);
-//     weekEntries.push(
-//       existingEntry || {
-//         date: dateString,
-//         calories: 0,
-//         weight: 0, // Default weight for missing entries
-//         achieved: false,
-//         userId,
-//       }
-//     );
-//   }
-
-//   console.log("🟢 Generated Week Entries:", weekEntries);
-//   return weekEntries;
-// }
-
 export const useSummary = (token: string | null) => {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [weeklySummary, setWeeklySummary] = useState<

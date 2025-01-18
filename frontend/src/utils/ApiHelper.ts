@@ -1,5 +1,5 @@
 import API_URL from "../config/apiConfig";
-import { refreshToken } from "./authUtils"; // Handles token refresh
+import { getUserIdFromToken, refreshToken } from "./authUtils"; // Handles token refresh
 import {
   getFromLocalStorageWithExpiry,
   saveToLocalStorageWithExpiry,
@@ -26,15 +26,23 @@ export const fetchWithFirebaseToken = async <T>(
     }
   }
 
+  // Retrieve userId
+  const userId = await getUserIdFromToken();
+  if (!userId) {
+    console.error("❌ Failed to retrieve userId. Aborting API call.");
+    throw new Error("Unauthorized: Unable to retrieve userId.");
+  }
+
   const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${currentToken}`,
+      "X-User-Id": userId, // Include userId in headers
     },
     body:
       payload && (method === "POST" || method === "PUT")
-        ? JSON.stringify(payload)
+        ? JSON.stringify({ ...payload, userId }) // Include userId in payload
         : undefined,
   };
 

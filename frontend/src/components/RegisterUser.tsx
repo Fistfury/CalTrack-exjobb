@@ -5,15 +5,16 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import styles from "./styles/registerUser.module.scss";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
-import { refreshToken } from "../utils/authUtils";
 import { useUser } from "../hooks/useUser";
 import {
   RegisterUserProps,
   RegisterResponse,
   RegisterFormState,
 } from "../types/AuthTypes";
+import { useTranslation } from "react-i18next";
 
 export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<RegisterFormState>({
     name: "",
@@ -51,28 +52,28 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
 
     if (step === 1) {
       if (!name || !email || !password) {
-        return "Please fill in all fields in Step 1.";
+        return t("step1Validation");
       }
     }
 
     if (step === 2) {
       if (!sex || !weight || !age || !height) {
-        return "Please fill in all fields in Step 2.";
+        return t("step2Validation");
       }
 
-      // Convert string values to numbers and validate
+      // Validate numbers
       const parsedWeight = parseFloat(weight);
       const parsedAge = parseInt(age, 10);
       const parsedHeight = parseFloat(height);
 
       if (isNaN(parsedWeight) || parsedWeight <= 0) {
-        return "Please provide a valid positive number for weight.";
+        return t("invalidWeight");
       }
       if (isNaN(parsedAge) || parsedAge <= 0) {
-        return "Please provide a valid positive number for age.";
+        return t("invalidAge");
       }
       if (isNaN(parsedHeight) || parsedHeight <= 0) {
-        return "Please provide a valid positive number for height.";
+        return t("invalidHeight");
       }
     }
 
@@ -102,16 +103,21 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
     }
 
     try {
+      // Skapa användare i Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         form.email,
         form.password
       );
-      const token = await refreshToken();
       const firebaseUid = userCredential.user.uid;
-      localStorage.setItem("token", token);
 
+      // Hämta token från Firebase Authentication
+      const token = await userCredential.user.getIdToken();
+      console.log("🛡️ Token generated:", token);
+
+      // Skicka payload till backend
       const payload = {
+        userId: firebaseUid, // Skickar userId direkt
         name: form.name,
         email: form.email,
         password: form.password,
@@ -123,12 +129,15 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         acceptNotifications: form.acceptNotifications,
       };
 
+      // Anropa backend med userId och token
       const userData = await fetchWithFirebaseToken<RegisterResponse>(
         `auth/register`,
         payload
       );
 
-      // Update user context
+      console.log("✅ Backend response:", userData);
+
+      // Uppdatera användarens kontext i frontend
       setUser({
         id: firebaseUid,
         name: form.name,
@@ -136,13 +145,10 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         calorieTarget: userData.calorieTarget,
       });
 
-      onSuccess();
+      onSuccess(); // Navigera vidare eller stäng modal
     } catch (err) {
-      localStorage.removeItem("token");
       console.error("❌ Registration error:", err);
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setLoading(false);
     }
@@ -152,10 +158,10 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
     <div className={styles.registerForm}>
       {step === 1 ? (
         <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-          <h2>Step 1: Account Details</h2>
+          <h2>{t("step1Title")}</h2>
           <Input
             name="name"
-            placeholder="Name"
+            placeholder={t("namePlaceholder")}
             value={form.name}
             onChange={handleChange}
             required
@@ -163,7 +169,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
           <Input
             name="email"
             type="email"
-            placeholder="Email"
+            placeholder={t("emailPlaceholder")}
             value={form.email}
             onChange={handleChange}
             required
@@ -171,7 +177,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
           <Input
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder={t("passwordPlaceholder")}
             value={form.password}
             onChange={handleChange}
             required
@@ -181,32 +187,27 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
               type="checkbox"
               name="acceptNotifications"
               checked={form.acceptNotifications}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  acceptNotifications: e.target.checked,
-                }))
-              }
+              onChange={handleChange}
             />
-            Accept Notifications
+            {t("acceptNotifications")}
           </label>
           {error && <p className={styles.error}>{error}</p>}
           <Button type="button" onClick={handleNextStep}>
-            Next
+            {t("next")}
           </Button>
         </form>
       ) : (
         <form onSubmit={handleRegister} className={styles.form}>
-          <h2>Step 2: Personal Details</h2>
+          <h2>{t("step2Title")}</h2>
           <select name="sex" value={form.sex} onChange={handleChange} required>
-            <option value="">Select Sex</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="">{t("selectSex")}</option>
+            <option value="male">{t("male")}</option>
+            <option value="female">{t("female")}</option>
           </select>
           <Input
             name="weight"
             type="number"
-            placeholder="Weight (kg)"
+            placeholder={t("weightPlaceholder")}
             value={form.weight}
             onChange={handleChange}
             required
@@ -214,7 +215,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
           <Input
             name="age"
             type="number"
-            placeholder="Age"
+            placeholder={t("agePlaceholder")}
             value={form.age}
             onChange={handleChange}
             required
@@ -222,7 +223,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
           <Input
             name="height"
             type="number"
-            placeholder="Height (cm)"
+            placeholder={t("heightPlaceholder")}
             value={form.height}
             onChange={handleChange}
             required
@@ -233,15 +234,15 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
             onChange={handleChange}
             required
           >
-            <option value="sedentary">Sedentary</option>
-            <option value="light">Lightly Active</option>
-            <option value="moderate">Moderately Active</option>
-            <option value="active">Active</option>
-            <option value="veryActive">Very Active</option>
+            <option value="sedentary">{t("sedentary")}</option>
+            <option value="light">{t("light")}</option>
+            <option value="moderate">{t("moderate")}</option>
+            <option value="active">{t("active")}</option>
+            <option value="veryActive">{t("veryActive")}</option>
           </select>
           {error && <p className={styles.error}>{error}</p>}
           <Button type="submit" disabled={loading}>
-            {loading ? "Registering..." : "Calculate & Register"}
+            {loading ? t("registering") : t("calculateAndRegister")}
           </Button>
         </form>
       )}

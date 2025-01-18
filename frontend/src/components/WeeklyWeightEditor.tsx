@@ -4,8 +4,11 @@ import modalStyles from "../styles/shared/modal.module.scss";
 import { WeeklyWeightEditorProps } from "../types/ComponentTypes";
 import { Button } from "./Button";
 import { Input } from "./Input";
+import { useTranslation } from "react-i18next";
 
 export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
+  const { t } = useTranslation();
+
   const [weights, setWeights] = useState<Record<string, string>>({
     Monday: "",
     Tuesday: "",
@@ -21,13 +24,13 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
   const generateDateFromDay = (day: string): string => {
     const today = new Date();
     const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
+      t("sunday"),
+      t("monday"),
+      t("tuesday"),
+      t("wednesday"),
+      t("thursday"),
+      t("friday"),
+      t("saturday"),
     ];
 
     const todayIndex = today.getDay();
@@ -60,13 +63,13 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
         );
         setTodaysWeight(todayEntry?.weight || null);
       } catch (err) {
-        console.error("Failed to fetch today's weight:", err);
+        console.error(t("fetchWeightError"), err);
         setTodaysWeight(null);
       }
     };
 
     fetchTodaysWeight();
-  }, []);
+  }, [t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,8 +114,8 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
         Sunday: "",
       });
     } catch (err) {
-      console.error("Error adding weights:", err);
-      setError("Failed to add weights. Please try again.");
+      console.error(t("addWeightsError"), err);
+      setError(t("addWeightsError"));
     }
   };
 
@@ -124,7 +127,7 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
     <div className={modalStyles.modal}>
       <div className={modalStyles.modalContent}>
         <header className={modalStyles.modalHeader}>
-          <h2>Edit Weekly Weights</h2>
+          <h2>{t("editWeeklyWeights")}</h2>
           <Button
             type="button"
             onClick={onSubmit}
@@ -137,16 +140,18 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
         <form className={modalStyles.form} onSubmit={handleSubmit}>
           {Object.keys(weights).map((day) => (
             <div key={day} className={modalStyles.inputGroup}>
-              <label>{day}:</label>
+              <label>{t(day.toLowerCase())}:</label>
               <Input
                 type="number"
-                placeholder={`Weight for ${day}`}
+                placeholder={t("weightPlaceholder", {
+                  day: t(day.toLowerCase()),
+                })}
                 value={weights[day]}
                 onChange={(e) => handleInputChange(day, e.target.value)}
               />
             </div>
           ))}
-          <Button type="submit">Submit</Button>
+          <Button type="submit">{t("submit")}</Button>
         </form>
         {error && <p className={modalStyles.error}>{error}</p>}
       </div>

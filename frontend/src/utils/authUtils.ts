@@ -25,3 +25,20 @@ export const verifyToken = (token: string): JwtPayload | null => {
     return null;
   }
 };
+// Retrieve the userId from the current token
+export const getUserIdFromToken = async (): Promise<string | null> => {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    console.error("❌ No user is logged in.");
+    return null;
+  }
+
+  try {
+    const token = await currentUser.getIdToken();
+    const decodedToken = verifyToken(token); // Decode the token
+    return decodedToken?.sub || null; // Return the userId (sub)
+  } catch (error) {
+    console.error("❌ Failed to retrieve userId from token:", error);
+    return null;
+  }
+};

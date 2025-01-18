@@ -70,6 +70,7 @@ export const registerUser = async (
 
     console.log("🗂️ Saving user details to Firestore...");
     await userDoc.set({
+      userId: firebaseUid, // Spara userId i dokumentet
       name,
       email,
       password: hashedPassword,
@@ -88,7 +89,7 @@ export const registerUser = async (
     console.log("📦 Creating initial entry in 'entries' collection...");
     const today = new Date().toISOString().split("T")[0];
     await db.collection("entries").add({
-      userId: firebaseUid,
+      userId: firebaseUid, // Koppla entry till userId
       date: today,
       weight,
       calories: calorieTarget,
@@ -136,6 +137,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Login successful",
       user: {
+        userId: firebaseUid, // Return userId till frontend
         name: userData.name,
         weight: userData.weight,
         calorieTarget: userData.calorieTarget,
