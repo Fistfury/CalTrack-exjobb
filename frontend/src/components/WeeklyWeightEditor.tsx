@@ -9,38 +9,31 @@ import { useTranslation } from "react-i18next";
 export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
   const { t } = useTranslation();
 
-  const [weights, setWeights] = useState<Record<string, string>>({
-    Monday: "",
-    Tuesday: "",
-    Wednesday: "",
-    Thursday: "",
-    Friday: "",
-    Saturday: "",
-    Sunday: "",
-  });
+  const daysOfWeek = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+
+  const [weights, setWeights] = useState<Record<string, string>>(
+    daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: "" }), {})
+  );
   const [todaysWeight, setTodaysWeight] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const generateDateFromDay = (day: string): string => {
     const today = new Date();
-    const daysOfWeek = [
-      t("sunday"),
-      t("monday"),
-      t("tuesday"),
-      t("wednesday"),
-      t("thursday"),
-      t("friday"),
-      t("saturday"),
-    ];
-
     const todayIndex = today.getDay();
     const dayIndex = daysOfWeek.indexOf(day);
 
-    // Calculate the difference in days
-    const diff = dayIndex - todayIndex;
+    const adjustedTodayIndex = todayIndex === 0 ? 6 : todayIndex - 1;
+    const diff = dayIndex - adjustedTodayIndex;
 
-    // Generate the target date
-    const targetDate = new Date(today);
+    const targetDate = new Date();
     targetDate.setDate(today.getDate() + diff);
 
     return targetDate.toISOString().split("T")[0];
@@ -80,37 +73,22 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
         if (weight) {
           const weightValue = parseFloat(weight);
 
-          // Determine if the weight is achieved or not
           const achieved = todaysWeight !== null && weightValue <= todaysWeight;
 
-          // Generate the date for the day
           const date = generateDateFromDay(day);
 
-          // Create the payload to send to the backend
           const payload = {
             weight: weightValue,
-            date, // Attach the generated date
-            achieved, // Include the achieved status
+            date,
+            achieved,
           };
 
-          // Make the API call to save the weight
           await fetchWithFirebaseToken("entries", payload, "POST");
         }
       }
 
-      // Notify the parent component to refresh the view
       onSubmit();
-
-      // Clear weights after submission
-      setWeights({
-        Monday: "",
-        Tuesday: "",
-        Wednesday: "",
-        Thursday: "",
-        Friday: "",
-        Saturday: "",
-        Sunday: "",
-      });
+      setWeights(daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: "" }), {}));
     } catch (err) {
       console.error(t("addWeightsError"), err);
       setError(t("addWeightsError"));
@@ -136,14 +114,12 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
           </Button>
         </header>
         <form className={modalStyles.form} onSubmit={handleSubmit}>
-          {Object.keys(weights).map((day) => (
+          {daysOfWeek.map((day) => (
             <div key={day} className={modalStyles.inputGroup}>
-              <label>{t(day.toLowerCase())}:</label>
+              <label>{t(day)}</label>
               <Input
                 type="number"
-                placeholder={t("weightPlaceholder", {
-                  day: t(day.toLowerCase()),
-                })}
+                placeholder={t("weightPlaceholder", { day: t(day) })}
                 value={weights[day]}
                 onChange={(e) => handleInputChange(day, e.target.value)}
               />

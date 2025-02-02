@@ -40,8 +40,22 @@ export const ProfilePage = () => {
       t("sunday"),
     ];
 
+    const today = new Date();
+    const currentDayIndex = today.getDay();
+
+    const weekDates = daysOfWeek.map((_, index) => {
+      const dayOffset =
+        index - (currentDayIndex === 0 ? 6 : currentDayIndex - 1);
+      const weekDate = new Date(today);
+      weekDate.setDate(today.getDate() + dayOffset);
+      return {
+        dayName: daysOfWeek[index],
+        dateString: weekDate.toISOString().split("T")[0],
+      };
+    });
+
     const todayEntry = entries.find(
-      (entry) => entry.date === new Date().toISOString().split("T")[0]
+      (entry) => entry.date === today.toISOString().split("T")[0]
     );
     const todaysWeight = todayEntry?.weight || null;
 
@@ -50,22 +64,10 @@ export const ProfilePage = () => {
       { weight: number | string; achieved: boolean | null }
     > = {};
 
-    daysOfWeek.forEach((day, index) => {
-      const localizedDay = new Date(2023, 0, index + 1).toLocaleDateString(
-        t("locale"),
-        {
-          weekday: "long",
-        }
-      );
+    weekDates.forEach(({ dayName, dateString }) => {
+      const entry = entries.find((entry) => entry.date === dateString);
 
-      const entry = entries.find(
-        (entry) =>
-          new Date(entry.date).toLocaleDateString(t("locale"), {
-            weekday: "long",
-          }) === localizedDay
-      );
-
-      weeklyData[day] = entry
+      weeklyData[dayName] = entry
         ? {
             weight: entry.weight,
             achieved:
@@ -79,7 +81,6 @@ export const ProfilePage = () => {
 
     return weeklyData;
   };
-
   return (
     <div className={styles.profilePage}>
       {/* Header Section */}
