@@ -2,7 +2,7 @@
 
 .footer {
   background-color: variables.$banner-bg-color;
-  color: variables.$light-gray;
+  color: variables.$primary-color;
   text-align: center;
   padding: 2rem 1rem;
 
@@ -16,7 +16,7 @@
       display: flex;
       align-items: center;
       text-decoration: none;
-      color: variables.$light-gray;
+      color: variables.$primary-color;
       font-size: 1.8rem;
       font-weight: bold;
 
@@ -27,8 +27,7 @@
       }
 
       &:hover {
-        color: variables.$primary-color;
-
+        color: variables.$hover-color;
         img {
           filter: brightness(1.2);
         }
@@ -40,12 +39,12 @@
       gap: 1rem;
 
       a {
-        color: variables.$light-gray;
+        color: variables.$primary-color;
         font-size: 1.5rem;
         transition: color 0.3s;
 
         &:hover {
-          color: variables.$primary-color;
+          color: variables.$hover-color;
         }
       }
     }

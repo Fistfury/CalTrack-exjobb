@@ -14,6 +14,7 @@ import { useUser } from "../hooks/useUser";
 import { AddTodayWeight } from "../components/AddTodayWeight";
 import { useSummary } from "../hooks/useSummary";
 import { useTranslation } from "react-i18next";
+import { NotificationButton } from "./NotificationButton";
 
 export const Header = () => {
   const { logout, isLoggedIn } = useUser();
@@ -44,9 +45,15 @@ export const Header = () => {
           <ul>
             {isLoggedIn() && (
               <li>
+                <NotificationButton />
+              </li>
+            )}
+            {isLoggedIn() && (
+              <li>
                 <button
                   onClick={() => setShowTodayWeightModal(true)}
                   className={styles.icon}
+                  aria-label="Add today's weight"
                 >
                   <AiOutlinePlusCircle className={styles.icon} />
                 </button>
@@ -54,7 +61,11 @@ export const Header = () => {
             )}
             {isLoggedIn() && (
               <li>
-                <Link to="/dashboard" className={styles.icon}>
+                <Link
+                  to="/dashboard"
+                  className={styles.icon}
+                  aria-label="Go to dashboard"
+                >
                   <AiOutlineDashboard className={styles.icon} />
                 </Link>
               </li>
@@ -63,10 +74,18 @@ export const Header = () => {
               <div className={styles.profileIcons}>
                 {isLoggedIn() ? (
                   <>
-                    <Link to="/profile" className={styles.icon}>
+                    <Link
+                      to="/profile"
+                      className={styles.icon}
+                      aria-label="Go to profile"
+                    >
                       <AiOutlineUser className={styles.icon} />
                     </Link>
-                    <button onClick={() => logout()} className={styles.icon}>
+                    <button
+                      onClick={() => logout()}
+                      className={styles.icon}
+                      aria-label="Logout"
+                    >
                       <AiOutlineLogout className={styles.icon} />
                     </button>
                   </>
@@ -74,6 +93,7 @@ export const Header = () => {
                   <button
                     onClick={() => toggleAuthModal(false)}
                     className={styles.icon}
+                    aria-label="Open login/register modal"
                   >
                     <AiOutlineUser className={styles.icon} />
                   </button>
@@ -81,7 +101,11 @@ export const Header = () => {
               </div>
             </li>
             <li>
-              <button onClick={toggleLanguage} className={styles.language}>
+              <button
+                onClick={toggleLanguage}
+                className={styles.language}
+                aria-label="Change language"
+              >
                 <MdLanguage className={styles.icon} />{" "}
                 {i18n.language.toUpperCase()}
               </button>
@@ -97,6 +121,7 @@ export const Header = () => {
             <button
               className={styles.closeButton}
               onClick={() => setShowAuthModal(false)}
+              aria-label="Close authentication modal"
             >
               ✖
             </button>

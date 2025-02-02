@@ -47,7 +47,7 @@ export const DashboardPage = () => {
     <div className={styles.dashboard}>
       <header className={styles.header}>
         <h1>{t("welcomeUser", { name: user.name })}</h1>
-        <h3>{t("calorieTarget")}</h3>
+        <h2>{t("calorieTarget")}</h2>
         <p>
           {weeklySummary?.avgCalories?.toFixed(0) || t("notAvailable")} kcal/
           {t("day")}

@@ -5,7 +5,7 @@
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   background-color: variables.$primary-color;
-  color: white;
+  color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -31,11 +31,12 @@
 
   &--secondary {
     background-color: variables.$gray-dark;
-    color: white;
+    color: black;
 
     .closeButton {
       all: unset; // Reset all inherited button styles
       position: absolute;
+      color: black;
       top: 1rem;
       right: 1rem;
       font-size: 1.5rem;

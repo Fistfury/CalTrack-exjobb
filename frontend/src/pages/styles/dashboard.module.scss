@@ -16,14 +16,14 @@
     }
     p {
       font-size: 1rem;
-      color: vars.$gray-dark;
+      color: vars.$primary-color;
     }
   }
 
   .calendarContainer {
     margin-top: 2rem;
     .react-calendar {
-      background-color: vars.$light-gray;
+      background-color: vars.$gray-light;
       border: 1px solid vars.$gray-medium;
       border-radius: 8px;
       padding: 1rem;
@@ -47,8 +47,8 @@
   }
 
   .greenTile {
-    background-color: #4caf50 !important;
-    color: white;
+    background-color: #5ee162 !important;
+    color: black;
   }
   .yellowTile {
     background-color: #ffc107 !important;
@@ -60,6 +60,7 @@
   }
 
   .tileContent {
+    color: black;
     text-align: center;
     font-size: 0.8rem;
   }

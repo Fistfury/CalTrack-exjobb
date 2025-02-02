@@ -15,7 +15,7 @@
     }
 
     p {
-      color: variables.$gray-dark;
+      color: variables.$primary-color;
       font-size: 1.2rem;
       margin-top: 0.5rem;
     }
@@ -37,7 +37,7 @@
       gap: 15px;
 
       .targetBox {
-        background: variables.$light-gray;
+        background: variables.$gray-light;
         border: 1px solid variables.$gray-light;
         border-radius: 8px;
         text-align: center;
@@ -52,7 +52,7 @@
 
         p {
           font-size: 1.2rem;
-          color: variables.$gray-dark;
+          color: variables.$primary-color;
           font-weight: bold;
         }
       }
@@ -72,7 +72,7 @@
 
     p {
       font-size: 1.5rem;
-      color: variables.$secondary-color;
+      color: variables.$primary-color;
       font-weight: bold;
       margin-bottom: 15px;
     }
@@ -120,12 +120,13 @@
       td {
         padding: 10px;
         text-align: center;
+        color: variables.$primary-color;
         border: 1px solid variables.$gray-light;
         font-size: 1rem;
       }
 
       th {
-        background-color: variables.$light-gray;
+        background-color: variables.$gray-light;
         font-weight: bold;
         color: variables.$primary-color;
       }

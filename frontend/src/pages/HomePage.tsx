@@ -4,6 +4,7 @@ import workoutImage from "../assets/workout.png";
 import { AuthModule } from "../modules/AuthModule";
 import { useUser } from "../hooks/useUser";
 import { useTranslation } from "react-i18next";
+import { Button } from "../components/Button";
 
 export const HomePage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -29,14 +30,14 @@ export const HomePage = () => {
           <h1>{t("welcome")}</h1>
           <p>{t("personalizedAssistant")}</p>
           {!isLoggedIn() && (
-            <button
+            <Button
               className={styles.registerButton}
               onClick={() => {
                 toggleAuthModal(true);
               }}
             >
               {t("startNow")}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -79,14 +80,14 @@ export const HomePage = () => {
         </ul>
         <p>{t("joinCalTrack")}</p>
         {!isLoggedIn() && (
-          <button
+          <Button
             className={styles.registerButton}
             onClick={() => {
               toggleAuthModal(true);
             }}
           >
             {t("getStarted")}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -94,12 +95,12 @@ export const HomePage = () => {
       {showAuthModal && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <button
+            <Button
               className={styles.closeButton}
               onClick={() => setShowAuthModal(false)}
             >
               ✖
-            </button>
+            </Button>
             <AuthModule
               isRegister={isRegister}
               onSuccess={() => setShowAuthModal(false)}

@@ -1,13 +1,13 @@
-$primary-color: #f39c12; // Bright yellow-orange
-$secondary-color: #e67e22; // Orange
+$primary-color: #2c3e50; // Darker shade for better contrast
+$secondary-color: #2980b9; // Strong blue for button and links
 $danger-color: #e74c3c; // Red for errors
 $gray-light: #ecf0f1; // Light gray for backgrounds
 $gray-medium: #bdc3c7; // Medium gray for borders and placeholders
-$gray-dark: #7f8c8d; // Dark gray for text
-$light-gray: #f7f7f7; // Very light gray for panels or cards
+$gray-dark: $primary-color; // Dark gray for text
 $input-text-color: $gray-dark; // Dark gray for input text
 $input-border-color: $gray-medium; // Medium gray for input borders
-$input-background-color: $gray-light; // Light gray for input fields
-$background-color: #ffffff; // Background for body
-$banner-bg-color: $gray-dark; // Dark background for banners
+$input-background-color: #ffffff; // White background for input fields
+$background-color: #f9f9f9; // Light background for general content
+$banner-bg-color: $gray-medium; // Dark background for banners
 $heading-color: $primary-color; // Default heading color
+$hover-color: $secondary-color; // Default hover color

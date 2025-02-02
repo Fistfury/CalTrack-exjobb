@@ -7,13 +7,13 @@
   align-items: center;
   padding: 1rem 2rem;
   background-color: variables.$banner-bg-color;
-  color: variables.$light-gray;
+  color: variables.$gray-light;
 
   .logo {
     display: flex; /* Aligns logo text and image horizontally */
     align-items: center; /* Vertically centers the content */
     text-decoration: none;
-    color: variables.$light-gray;
+    color: variables.$primary-color;
     font-size: 1.8rem;
     font-weight: bold;
 
@@ -24,7 +24,7 @@
     }
 
     &:hover {
-      color: variables.$primary-color;
+      color: variables.$hover-color;
 
       img {
         filter: brightness(1.2); /* Optional hover effect for the logo image */
@@ -51,7 +51,7 @@
 
           background: none;
           border: none;
-          color: variables.$light-gray;
+          color: variables.$primary-color;
           cursor: pointer;
           font-size: 1.5rem;
           display: flex;
@@ -59,7 +59,7 @@
           align-items: center;
 
           &:hover {
-            color: variables.$primary-color;
+            color: variables.$hover-color;
           }
         }
 
@@ -67,7 +67,7 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: variables.$light-gray;
+          background: variables.$gray-light;
           color: variables.$primary-color;
           border: 1px solid variables.$gray-light;
           border-radius: 5px;

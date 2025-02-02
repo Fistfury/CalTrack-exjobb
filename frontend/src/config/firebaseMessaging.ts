@@ -1,12 +1,10 @@
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-
 import { app } from "./firebaseConfig";
 import { fetchWithFirebaseToken } from "../utils/ApiHelper";
 
 const messaging = getMessaging(app);
 
 // Request Notification Permission
-
 export const requestNotificationPermission = async () => {
   try {
     console.log("Requesting notification permission...");
@@ -23,7 +21,7 @@ export const requestNotificationPermission = async () => {
 
       // Send FCM token to backend
       await fetchWithFirebaseToken(
-        "messaging/save-fcm-token",
+        "messaging/save-fcm-token", // Adjust based on your backend API
         { fcmToken: token },
         "POST"
       );

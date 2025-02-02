@@ -3,7 +3,7 @@
 
 .registerForm {
   padding: 2rem;
-  background-color: variables.$light-gray;
+  background-color: variables.$gray-light;
   border-radius: 8px;
   width: 90%;
   max-width: 400px;
@@ -85,7 +85,7 @@ select {
   font-size: 1rem;
   border: 1px solid variables.$gray-medium;
   border-radius: 4px;
-  background-color: variables.$light-gray;
+  background-color: variables.$gray-light;
   color: variables.$gray-dark;
 
   &:focus {
@@ -96,6 +96,6 @@ select {
 
   option {
     color: variables.$gray-dark;
-    background-color: variables.$light-gray;
+    background-color: variables.$gray-light;
   }
 }
