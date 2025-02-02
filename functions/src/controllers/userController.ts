@@ -9,9 +9,6 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
   const sanitizedUserId = userId.trim();
   const sanitizedFirebaseUid = firebaseUid.trim();
 
-  console.log("🔍 Trimmed userId:", sanitizedUserId);
-  console.log("🔍 Trimmed firebaseUid:", sanitizedFirebaseUid);
-
   // Check if the userId matches the firebaseUid
   if (sanitizedUserId !== sanitizedFirebaseUid) {
     console.error(
@@ -26,7 +23,6 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
     const userDoc = await db.collection("users").doc(sanitizedUserId).get();
 
     if (!userDoc.exists) {
-      console.log(`❌ User with ID ${sanitizedUserId} not found.`);
       res.status(404).json({ message: "User not found." });
       return;
     }

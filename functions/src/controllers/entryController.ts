@@ -19,8 +19,6 @@ export const createOrUpdateEntry = async (
     const parsedData = entrySchema.parse(req.body);
     const { weight, date, caloriesMet, achieved } = parsedData;
 
-    console.log(`🟢 Received Entry Data: Date=${date}, Weight=${weight}`);
-
     // Fetch user document
     const userRef = db.collection("users").doc(firebaseUid);
     const userDoc = await userRef.get();
@@ -42,11 +40,6 @@ export const createOrUpdateEntry = async (
     // Use the provided `achieved` or fallback to comparing caloriesMet
     const isAchieved = achieved ?? !!caloriesMet;
 
-    console.log(
-      `📊 Macros: Calories=${calorieTarget}, Proteins=${proteins}g, Carbs=${carbs}g, Fats=${fats}g`
-    );
-    console.log(`📊 Achieved: ${isAchieved}`);
-
     // Check if an entry for the given date already exists
     const existingEntrySnapshot = await db
       .collection("entries")
@@ -56,10 +49,6 @@ export const createOrUpdateEntry = async (
 
     if (!existingEntrySnapshot.empty) {
       const entryId = existingEntrySnapshot.docs[0].id;
-
-      console.log(
-        `📦 Updating existing entry: Date=${date}, EntryID=${entryId}`
-      );
 
       await db.collection("entries").doc(entryId).update({
         weight,
@@ -76,7 +65,6 @@ export const createOrUpdateEntry = async (
     }
 
     // Create a new entry
-    console.log(`📄 Adding new entry: Date=${date}`);
 
     const newEntry = await db.collection("entries").add({
       userId: firebaseUid,
@@ -108,8 +96,6 @@ export const getEntriesSummary = async (
   const { uid: firebaseUid } = res.locals.user;
 
   try {
-    console.log(`🟢 Fetching weekly summary for UID=${firebaseUid}`);
-
     const snapshot = await db
       .collection("entries")
       .where("userId", "==", firebaseUid)
@@ -135,8 +121,6 @@ export const getEntriesSummary = async (
 
     // Use the helper function to calculate the weekly summary
     const weeklySummary = calculateWeeklySummary(entries);
-
-    console.log(`📦 Weekly Summary for UID=${firebaseUid}:`, weeklySummary);
 
     res.status(200).json({ entries, weeklySummary });
   } catch (error) {

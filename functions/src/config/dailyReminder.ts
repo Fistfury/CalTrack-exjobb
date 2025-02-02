@@ -5,16 +5,9 @@ export const sendDailyReminder = functions.pubsub
   .schedule("every day 08:00")
   .timeZone("Europe/Stockholm")
   .onRun(async () => {
-    console.log("🔔 Starting daily reminder function...");
-
     try {
       // Fetch all users from Firestore
       const usersSnapshot = await admin.firestore().collection("users").get();
-
-      if (usersSnapshot.empty) {
-        console.log("ℹ️ No users found in the Firestore collection.");
-        return;
-      }
 
       // Prepare FCM messages for users with notifications enabled
       const messages: admin.messaging.TokenMessage[] = [];
@@ -28,19 +21,15 @@ export const sendDailyReminder = functions.pubsub
               body: "Don't forget to log your weight today!",
             },
             data: {
-              userId: doc.id, // Include additional data if needed
+              userId: doc.id,
             },
           });
         }
       });
 
       if (messages.length > 0) {
-        console.log(`🔄 Sending notifications to ${messages.length} users...`);
         const response = await admin.messaging().sendAll(messages);
 
-        console.log(
-          `✅ Notifications sent successfully: ${response.successCount}`
-        );
         if (response.failureCount > 0) {
           console.warn(
             `⚠️ Failed to send ${response.failureCount} notifications.`
@@ -55,7 +44,6 @@ export const sendDailyReminder = functions.pubsub
           });
         }
       } else {
-        console.log("ℹ️ No users opted in for notifications.");
       }
     } catch (error) {
       console.error(
@@ -63,6 +51,4 @@ export const sendDailyReminder = functions.pubsub
         error instanceof Error ? error.message : error
       );
     }
-
-    console.log("✅ Daily reminder function completed.");
   });

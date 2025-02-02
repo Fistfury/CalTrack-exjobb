@@ -23,7 +23,6 @@ export const useSummary = (token: string | null) => {
           undefined,
           "GET"
         );
-        console.log("📦 Raw Entries Response:", response.entries);
         setEntries(response.entries || []);
         setWeeklySummary(response.weeklySummary || null);
       } catch (err) {

@@ -23,7 +23,6 @@ if (
   import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true" ||
   window.location.hostname === "localhost"
 ) {
-  console.log("Connecting to Firestore, Auth, and Functions Emulator...");
   connectFirestoreEmulator(db, "localhost", 8080); // Firestore Emulator Port
   connectAuthEmulator(auth, "http://localhost:9099"); // Auth Emulator Port
   connectFunctionsEmulator(functions, "localhost", 5001); // Functions Emulator Port

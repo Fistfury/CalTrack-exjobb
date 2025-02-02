@@ -18,7 +18,6 @@ export const AuthModule = ({ isRegister, onSuccess }: AuthModuleProps) => {
   const handleSuccess = () => {
     setTimeout(() => {
       onSuccess(); // Close modal
-      console.log("➡️ AuthModule: Navigating to /profile");
       navigate("/profile"); // Navigate to profile after ensuring context is updated
     }, 100);
   };

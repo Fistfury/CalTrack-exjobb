@@ -112,8 +112,7 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
       const firebaseUid = userCredential.user.uid;
 
       // Hämta token från Firebase Authentication
-      const token = await userCredential.user.getIdToken();
-      console.log("🛡️ Token generated:", token);
+      await userCredential.user.getIdToken();
 
       // Skicka payload till backend
       const payload = {
@@ -134,8 +133,6 @@ export const RegisterUser = ({ onSuccess }: RegisterUserProps) => {
         `auth/register`,
         payload
       );
-
-      console.log("✅ Backend response:", userData);
 
       // Uppdatera användarens kontext i frontend
       setUser({

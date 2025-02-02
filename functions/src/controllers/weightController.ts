@@ -16,7 +16,6 @@ export const updateWeight = async (
   }
 
   try {
-    console.log(`🔍 Fetching user data for weight update: UID=${firebaseUid}`);
     const userRef = db.collection("users").doc(firebaseUid);
     const userDoc = await userRef.get();
 
@@ -31,20 +30,15 @@ export const updateWeight = async (
       return;
     }
 
-    console.log(`📊 Raw User Data Retrieved:`, rawUserData);
-
     // Validate and cast Firestore data to UserData type
     const userData = validateUserData(rawUserData);
-    console.log(`📊 Validated User Data:`, userData);
 
     // Calculate macros
     const { calorieTarget, proteins, carbs, fats } = calculateMacros(
       userData,
       weight
     );
-    console.log(`📊 Updated Macros:`, { calorieTarget, proteins, carbs, fats });
 
-    console.log("🗂️ Updating user weight and calorie target...");
     await userRef.update({
       weight,
       calorieTarget,
@@ -60,7 +54,7 @@ export const updateWeight = async (
 
     if (!entrySnapshot.empty) {
       const entryId = entrySnapshot.docs[0].id;
-      console.log(`📝 Updating today's entry: EntryID=${entryId}`);
+
       await db.collection("entries").doc(entryId).update({
         weight,
         calories: calorieTarget,
@@ -70,7 +64,6 @@ export const updateWeight = async (
         updatedAt: FieldValue.serverTimestamp(),
       });
     } else {
-      console.log("📄 Creating today's weight entry...");
       await db.collection("entries").add({
         userId: firebaseUid,
         date: today,

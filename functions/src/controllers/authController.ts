@@ -6,8 +6,6 @@ export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  console.log("🟢 Incoming request body:", req.body);
-
   const {
     name,
     email,
@@ -22,26 +20,18 @@ export const registerUser = async (
   const { uid: firebaseUid } = res.locals.user; // Extract UID from decoded token
 
   try {
-    console.log("🔍 Decoded Token UID:", firebaseUid);
-    console.log("🔍 Request Body Email:", email);
-    console.log("🔍 Checking if user already exists in Firestore...");
     const userDoc = db.collection("users").doc(firebaseUid);
     const existingUser = await userDoc.get();
 
     if (existingUser.exists) {
-      console.log(
-        `⚠️ User already exists in Firestore. UID=${firebaseUid}, Email=${email}`
-      );
       res
         .status(400)
         .json({ message: "A user with this account already exists." });
       return;
     }
 
-    console.log("🔒 Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log("⚖️ Calculating calorie target...");
     const activityMultiplierMap: Record<string, number> = {
       sedentary: 1.2,
       light: 1.375,
@@ -68,7 +58,6 @@ export const registerUser = async (
     const carbs = Math.round((calorieTarget * 0.5) / 4);
     const fats = Math.round((calorieTarget * 0.25) / 9);
 
-    console.log("🗂️ Saving user details to Firestore...");
     await userDoc.set({
       userId: firebaseUid, // Spara userId i dokumentet
       name,
@@ -84,9 +73,6 @@ export const registerUser = async (
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    console.log("✅ User details saved to Firestore!");
-
-    console.log("📦 Creating initial entry in 'entries' collection...");
     const today = new Date().toISOString().split("T")[0];
     await db.collection("entries").add({
       userId: firebaseUid, // Koppla entry till userId
@@ -98,8 +84,6 @@ export const registerUser = async (
       fats,
       createdAt: FieldValue.serverTimestamp(),
     });
-
-    console.log("✅ Initial entry created successfully!");
 
     res.status(201).json({
       message: "User registered successfully.",
@@ -118,7 +102,6 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { uid: firebaseUid } = res.locals.user;
 
   try {
-    console.log("🔍 Fetching user from Firestore with UID:", firebaseUid);
     const userDoc = await db.collection("users").doc(firebaseUid).get();
 
     if (!userDoc.exists) {
@@ -131,8 +114,6 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       res.status(500).json({ message: "Failed to retrieve user data." });
       return;
     }
-
-    console.log("✅ User data retrieved:", userData);
 
     res.status(200).json({
       message: "Login successful",

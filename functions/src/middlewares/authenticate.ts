@@ -15,11 +15,9 @@ export const authenticate = async (
   }
 
   const token = authHeader.split(" ")[1];
-  console.log("🔑 Received Authorization Token:", token);
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log("✅ Decoded Token:", decodedToken);
 
     res.locals.user = decodedToken; // Attach the token payload
     next();

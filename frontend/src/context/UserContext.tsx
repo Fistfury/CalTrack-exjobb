@@ -24,7 +24,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       await signOut(auth);
       removeFromLocalStorage("firebaseToken");
       setUser(null);
-      console.log("✅ User successfully logged out.");
     } catch (error) {
       console.error("❌ Logout failed:", error);
     }
@@ -54,7 +53,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (userSnapshot.exists()) {
         const userData = userSnapshot.data() as User;
-        console.log("✅ Firestore user data:", userData);
         setUser({
           id: uid,
           name: userData.name || "Unknown",
@@ -77,7 +75,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
         if (currentUser) {
-          console.log("🔑 User logged in:", currentUser.uid);
           const token = await initializeToken();
           if (!token) {
             await logout();
@@ -88,7 +85,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             await fetchUserData(decodedToken.sub);
           }
         } else {
-          console.log("❌ No user is logged in.");
           setUser(null);
         }
       } catch (error) {

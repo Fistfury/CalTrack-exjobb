@@ -93,8 +93,6 @@ export const WeeklyWeightEditor = ({ onSubmit }: WeeklyWeightEditorProps) => {
             achieved, // Include the achieved status
           };
 
-          console.log("📤 Sending payload:", payload);
-
           // Make the API call to save the weight
           await fetchWithFirebaseToken("entries", payload, "POST");
         }
